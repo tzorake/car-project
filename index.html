@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <canvas class="game-canvas"></canvas>
+    <script>
+        const SECOND_TO_MILLISECONDS = 1000;
+
+        const body = document.querySelector('body');
+        const gameCanvas = document.querySelector('.game-canvas');
+        
+        gameCanvas.setAttribute('width', `${parseFloat(body.clientWidth) - 5}px`);
+        gameCanvas.setAttribute('height', `${parseFloat(body.clientHeight) - 5}px`);
+
+        const gameCanvasContext = gameCanvas.getContext('2d');
+
+
+        const canvasWidth = gameCanvas.clientWidth;
+        const canvasHeight = gameCanvas.clientHeight;
+
+        let car;
+
+        function background(color) {
+            gameCanvasContext.fillStyle = color;
+            gameCanvasContext.fillRect(0, 0, canvasWidth, canvasHeight);
+        }
+
+        function start() {
+            let start, previousTimeStamp;
+            let done = false;
+
+            function step(timestamp) {
+                if (start === undefined) {
+                    start = timestamp;
+                }
+                const elapsed = timestamp - start;
+
+                if (previousTimeStamp !== timestamp) {
+                    background('rgba(0, 0, 0, 1.0)');
+
+                    car.update(elapsed);
+                    const corners = car.corners();
+                    const wheels = car.wheels();
+                    const tire = car.tire;
+
+                    gameCanvasContext.fillStyle = 'rgba(255, 0, 0, 1.0)';
+                    const c = new Path2D(`M ${corners[0].x} ${corners[0].y} L ${corners[1].x} ${corners[1].y} L ${corners[2].x} ${corners[2].y} L ${corners[3].x} ${corners[3].y} Z`);
+                    gameCanvasContext.fill(c);
+
+                    gameCanvasContext.fillStyle = 'rgba(0, 255, 0, 1.0)';
+                    wheels.forEach(wheel => {
+                        const corners = wheel.corners;
+                        const w = new Path2D(`M ${corners[0].x} ${corners[0].y} L ${corners[1].x} ${corners[1].y} L ${corners[2].x} ${corners[2].y} L ${corners[3].x} ${corners[3].y} Z`);
+                        gameCanvasContext.fill(w);
+                    })
+                }
+
+                previousTimeStamp = timestamp;
+                if (!done) {
+                    window.requestAnimationFrame(step);
+                }
+            }
+
+            window.requestAnimationFrame(step);
+        }
+
+        class Vec2D {
+            #x;
+            #y;
+
+            constructor(x, y) {
+                this.#x = x;
+                this.#y = y;
+            }
+
+            get x() {
+                return this.#x;
+            }
+
+            get y() {
+                return this.#y;
+            }
+
+            rotated(theta, c) {
+                c = c === undefined ? c = new Vec2D(0.0, 0.0) : c;
+
+                return new Vec2D(
+                    (this.x - c.x)*Math.cos(theta) - (this.y - c.y)*Math.sin(theta) + c.x,
+                    (this.x - c.x)*Math.sin(theta) + (this.y - c.y)*Math.cos(theta) + c.y
+                );
+            }
+
+            length() {
+                return Math.sqrt(this.x*this.x + this.y*this.y);
+            }
+
+            abs() {
+                return this.length();
+            }
+
+            add(...other) {
+                return new Vec2D(this.x + other.reduce((acc, item) => acc += item.x, 0.0), this.y + other.reduce((acc, item) => acc += item.y, 0.0));
+            }
+
+            mult(other) {
+                const isVec2D = value => value instanceof Vec2D;
+                const isNumber = value => typeof value === 'number';
+
+                const __nvmult__ = (number, vector) => new Vec2D(number*vector.x, number*vector.y);
+                const __vvmult__ = (first, second) => first.x*second.x + first.y*second.y;
+
+                if (isVec2D(this) && isNumber(other)) {
+                    return __nvmult__(other, this);
+                }
+                else if (isNumber(this) && isVec2D(other)) {
+                    return __nvmult__(this, other);
+                }
+                else if (isVec2D(this) && isVec2D(other)) {
+                    return __nvmult__(this, other);
+                }
+                else {
+                    throw new Error('Vec2D: `mult` arguments have to be either `Number` or `Vec2D` type!');
+                }
+            }
+        }
+
+        // https://asawicki.info/Mirror/Car%20Physics%20for%20Games/Car%20Physics%20for%20Games.html
+        class CarObject {
+            #position;
+            #width;
+            #height;
+            #rotation;
+            #unitVector;
+            #velocity;
+            #engineForce;
+            #dragConstant;
+            #rollingResistanceConstant;
+            #mass;
+            
+            #tire = new Vec2D(8.0, 20.0);
+
+            constructor(x, y, width, height) {
+                this.#position = new Vec2D(x, y);        // position of car
+                this.#width = width;                     // width of car
+                this.#height = height;                   // height of car
+                this.#rotation = 0.0;                    // rotation of car
+                this.#unitVector = new Vec2D(0.0, 1.0);  // unit vector (car heading direction)
+                this.#velocity = new Vec2D(0.0, 0.0);    // velocity of car
+                this.#engineForce = 1.0;
+                this.#dragConstant = 0.4257;
+                this.#rollingResistanceConstant = 12.8;
+                this.#mass = 1500.0;
+            }
+
+            get position() {
+                return this.#position;
+            }
+
+            set position(value) {
+                console.assert(value instanceof Vec2D);
+                this.#position = value;
+            }
+
+            get x() {
+                return this.position.x;
+            }
+
+            get y() {
+                return this.position.y;
+            }
+
+            get width() {
+                return this.#width;
+            }
+
+            get height() {
+                return this.#height;
+            }
+
+            get rotation() {
+                return this.#rotation;
+            }
+
+            set rotation(value) {
+                this.#rotation = value;
+            }
+
+            get unitVector() {
+                return this.#unitVector;
+            }
+
+            get tire() {
+                return this.#tire;
+            }
+
+            get velocity() {
+                return this.#velocity;
+            }
+
+            set velocity(value) {
+                console.assert(value instanceof Vec2D);
+                this.#velocity = value;
+            }
+            
+            get engineForce() {
+                return this.#engineForce;
+            }
+
+            get dragConstant() {
+                return this.#dragConstant;
+            }
+
+            get rollingResistanceConstant() {
+                return this.#rollingResistanceConstant;
+            }
+
+            get mass() {
+                return this.#mass;
+            }
+
+            corners() {
+               /*    
+                *    0         1
+                *      *-----*  
+                *      |  |  |  
+                *      |--*--|  
+                *      |  |  |  
+                *      *-----*  
+                *    3         2
+                */
+                const c = this.position;
+                const theta = this.rotation;
+                const cons = [new Vec2D(this.x - this.width/2, this.y - this.height/2),
+                              new Vec2D(this.x + this.width/2, this.y - this.height/2),
+                              new Vec2D(this.x + this.width/2, this.y + this.height/2),
+                              new Vec2D(this.x - this.width/2, this.y + this.height/2)];
+                
+                return cons.map(p => p.rotated(theta, c));
+            }
+
+            wheel(index) {
+                const c = this.position;
+                const theta = this.rotation;
+                const tire = this.tire;
+                const ws = [new Vec2D(c.x - this.width/2, c.y - 3*this.height/10),
+                            new Vec2D(c.x + this.width/2, c.y - 3*this.height/10),
+                            new Vec2D(c.x + this.width/2, c.y + 3*this.height/10),
+                            new Vec2D(c.x - this.width/2, c.y + 3*this.height/10)];
+
+                let wheel;
+
+                switch (index) {
+                    case 0: {
+                        wheel = new Vec2D(c.x - this.width/2, c.y - 3*this.height/10);
+                    } break;
+                    case 1: {
+                        wheel = new Vec2D(c.x + this.width/2, c.y - 3*this.height/10);
+                    } break;
+                    case 2: {
+                        wheel = new Vec2D(c.x + this.width/2, c.y + 3*this.height/10);
+                    } break;
+                    case 3: {
+                        wheel = new Vec2D(c.x - this.width/2, c.y + 3*this.height/10);
+                    } break;
+                    default:
+                        return [];
+                }
+
+                return { center  : wheel,
+                         corners : [new Vec2D(wheel.x - tire.x/2, wheel.y - tire.y/2).rotated(theta, c),
+                                    new Vec2D(wheel.x + tire.x/2, wheel.y - tire.y/2).rotated(theta, c),
+                                    new Vec2D(wheel.x + tire.x/2, wheel.y + tire.y/2).rotated(theta, c),
+                                    new Vec2D(wheel.x - tire.x/2, wheel.y + tire.y/2).rotated(theta, c)] };
+            }
+
+            wheels() {
+                const wheelIndecies = [0, 1, 2, 3];
+                return wheelIndecies.map(index => {
+                    return this.wheel(index);
+                });
+            }
+
+            update(dt) {
+                // const pos = this.position;
+                // const theta = this.rotation;
+                // const uv = this.heading;
+                // const rv = v.rotated(theta);
+                // this.position = pos.add(rv);
+
+                const time  = dt/SECOND_TO_MILLISECONDS;
+
+                const engineForce               = this.engineForce
+                const mass                      = this.mass;
+                const dragConstant              = this.dragConstant;
+                const rollingResistanceConstant = this.rollingResistanceConstant;
+
+                const unitVector                = this.unitVector.rotated(this.rotation);
+                const initialVelocity           = this.velocity;
+                const initialPosition           = this.position;
+                
+                const tractionForce             = unitVector.mult(engineForce);                              // F_traction = u / engineForce
+                const dragForce                 = initialVelocity.mult(-dragConstant*initialVelocity.abs()); // F_drag = -C_drag * v * |v|
+                const rollingResistanceForce    = initialVelocity.mult(-rollingResistanceConstant);          // F_rr = -C_rr * v
+
+                const force                     = tractionForce.add(dragForce, rollingResistanceForce);      // F = F_traction + F_drag + F_rr
+                const acceleration              = force.mult(1.0/mass);                                      // a = F / M
+
+                const velocity                  = initialVelocity.add(acceleration.mult(time));              // v = v + dt * a
+                this.velocity                   = velocity;
+
+                const position                  = initialPosition.add(velocity.mult(time));                  // p = p + dt * v
+                this.position                   = position;
+            }
+        }
+
+        class BasicController {
+            constructor(speaker, controllable, buttonMapping) {
+                speaker.addEventListener('keypress', e => {
+                    const keyCode = e.code;
+                    const action = buttonMapping[keyCode];
+
+                    if (action !== undefined) {
+                        action.call(action, controllable);
+                    }
+
+                });
+            }
+        };
+
+        car = new CarObject(200, 200, 40, 100);
+        const controller = new BasicController(window, car, { 
+            'KeyA' : (controllable) => { controllable.rotation = 2*Math.PI*Math.random() } 
+        });
+        
+        start();
+
+    </script>
+</body>
+</html>
