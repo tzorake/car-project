@@ -13,6 +13,12 @@
     <script>
         const SECOND_TO_MILLISECONDS = 1000;
 
+        function BACKGROUND(color) 
+        {
+            gameCanvasContext.fillStyle = color;
+            gameCanvasContext.fillRect(0, 0, canvasWidth, canvasHeight);
+        }
+
         const body = document.querySelector('body');
         const gameCanvas = document.querySelector('.game-canvas');
         
@@ -21,118 +27,210 @@
 
         const gameCanvasContext = gameCanvas.getContext('2d');
 
-
         const canvasWidth = gameCanvas.clientWidth;
         const canvasHeight = gameCanvas.clientHeight;
 
-        let car;
+        class GameLoop 
+        {
+            #startTimeStamp = null;
+            #previousTimeStamp = null;
+            #done = false;
 
-        function background(color) {
-            gameCanvasContext.fillStyle = color;
-            gameCanvasContext.fillRect(0, 0, canvasWidth, canvasHeight);
-        }
+            #objects = [];
 
-        function start() {
-            let start, previousTimeStamp;
-            let done = false;
+            #step = function() 
+            {
+                const step = function(timestamp) 
+                {
+                    if (this.startTimeStamp === null) 
+                    {
+                        this.startTimeStamp = timestamp;
+                    }
 
-            function step(timestamp) {
-                if (start === undefined) {
-                    start = timestamp;
-                }
-                const elapsed = timestamp - start;
+                    if (this.previousTimeStamp !== null) 
+                    {
+                        const dt = timestamp - this.previousTimeStamp;
 
-                if (previousTimeStamp !== timestamp) {
-                    background('rgba(0, 0, 0, 1.0)');
+                        BACKGROUND('rgba(0, 0, 0, 1.0)');
 
-                    car.update(elapsed);
-                    const corners = car.corners();
-                    const wheels = car.wheels();
-                    const tire = car.tire;
+                        this.#objects.forEach(object => {
+                            object.update(dt);
+                            object.renderer.render(object);
+                        });
+                    }
 
-                    gameCanvasContext.fillStyle = 'rgba(255, 0, 0, 1.0)';
-                    const c = new Path2D(`M ${corners[0].x} ${corners[0].y} L ${corners[1].x} ${corners[1].y} L ${corners[2].x} ${corners[2].y} L ${corners[3].x} ${corners[3].y} Z`);
-                    gameCanvasContext.fill(c);
+                    this.previousTimeStamp = timestamp;
 
-                    gameCanvasContext.fillStyle = 'rgba(0, 255, 0, 1.0)';
-                    wheels.forEach(wheel => {
-                        const corners = wheel.corners;
-                        const w = new Path2D(`M ${corners[0].x} ${corners[0].y} L ${corners[1].x} ${corners[1].y} L ${corners[2].x} ${corners[2].y} L ${corners[3].x} ${corners[3].y} Z`);
-                        gameCanvasContext.fill(w);
-                    })
-                }
+                    if (!this.done) 
+                    {
+                        window.requestAnimationFrame(step);
+                    }
+                }.bind(this);
 
-                previousTimeStamp = timestamp;
-                if (!done) {
-                    window.requestAnimationFrame(step);
-                }
+                window.requestAnimationFrame(step);
+            }.bind(this);
+
+            constructor(objects) 
+            {
+                this.#objects = objects.slice();
             }
 
-            window.requestAnimationFrame(step);
-        }
+            // `startTimeStamp` field getter & setter
+            get startTimeStamp() 
+            {
+                return this.#startTimeStamp;
+            }
 
-        class Vec2D {
+            set startTimeStamp(value) 
+            {
+                this.#startTimeStamp = value;
+            }
+
+            // `previousTimeStamp` field getter & setter
+            get previousTimeStamp() 
+            {
+                return this.#previousTimeStamp;
+            }
+
+            set previousTimeStamp(value) 
+            {
+                this.#previousTimeStamp = value;
+            }
+
+            // `done` field getter & setter
+            get done() 
+            {
+                return this.#done;
+            }
+
+            set done(value) 
+            {
+                this.#done = value;
+            }
+
+            start() 
+            {
+                window.requestAnimationFrame(this.#step);
+            }
+
+            addObject(object) {
+                if (object != undefined && !object.hasOwnProperty('update')) 
+                {
+                    throw new Error('GameLoop.addObject(object) : Passed object has no `update` method!');
+                }
+
+                this.#objects.push(object);
+            }
+        };
+
+        class Vector2D 
+        {
             #x;
             #y;
 
-            constructor(x, y) {
+            constructor(x, y) 
+            {
                 this.#x = x;
                 this.#y = y;
             }
 
-            get x() {
+            get x() 
+            {
                 return this.#x;
             }
 
-            get y() {
+            get y() 
+            {
                 return this.#y;
             }
 
-            rotated(theta, c) {
-                c = c === undefined ? c = new Vec2D(0.0, 0.0) : c;
+            rotated(theta, c) 
+            {
+                c = c === undefined ? c = new Vector2D(0.0, 0.0) : c;
 
-                return new Vec2D(
+                return new Vector2D(
                     (this.x - c.x)*Math.cos(theta) - (this.y - c.y)*Math.sin(theta) + c.x,
                     (this.x - c.x)*Math.sin(theta) + (this.y - c.y)*Math.cos(theta) + c.y
                 );
             }
 
-            length() {
+            length() 
+            {
                 return Math.sqrt(this.x*this.x + this.y*this.y);
             }
 
-            abs() {
+            abs() 
+            {
                 return this.length();
             }
 
-            add(...other) {
-                return new Vec2D(this.x + other.reduce((acc, item) => acc += item.x, 0.0), this.y + other.reduce((acc, item) => acc += item.y, 0.0));
+            add(...other) 
+            {
+                return new Vector2D(
+                    this.x + other.reduce((acc, item) => acc += item.x, 0.0), 
+                    this.y + other.reduce((acc, item) => acc += item.y, 0.0)
+                );
             }
 
-            mult(other) {
-                const isVec2D = value => value instanceof Vec2D;
+            multiply(other) {
+                if (Vector2D.isVector2D(other)) 
+                {
+                    return this.x*other.x + this.y*other.y;
+                }
+
+                throw new Error('Vector2D.multiply(other) : Function argument should have `Vector2D` type!');
+            }
+
+            multiplyScalar(scalar) 
+            {
                 const isNumber = value => typeof value === 'number';
 
-                const __nvmult__ = (number, vector) => new Vec2D(number*vector.x, number*vector.y);
-                const __vvmult__ = (first, second) => first.x*second.x + first.y*second.y;
+                if (isNumber(scalar))
+                {
+                    return new Vector2D(
+                        scalar*this.x, 
+                        scalar*this.y
+                    );
+                }
 
-                if (isVec2D(this) && isNumber(other)) {
-                    return __nvmult__(other, this);
-                }
-                else if (isNumber(this) && isVec2D(other)) {
-                    return __nvmult__(this, other);
-                }
-                else if (isVec2D(this) && isVec2D(other)) {
-                    return __nvmult__(this, other);
-                }
-                else {
-                    throw new Error('Vec2D: `mult` arguments have to be either `Number` or `Vec2D` type!');
-                }
+                throw new Error('Vector2D.multiplyScalar(scalar) : Function argument should has `Number` type!');
             }
-        }
 
-        // https://asawicki.info/Mirror/Car%20Physics%20for%20Games/Car%20Physics%20for%20Games.html
-        class CarObject {
+            static isVector2D(value) 
+            {
+                return value instanceof Vector2D;
+            }
+        };
+
+        class GameObject
+        {
+            #renderer;
+
+            constructor()
+            {
+
+            }
+
+            update(dt) 
+            {
+                throw new Error('GameObject: update method is not implemented yet!');
+            }
+
+            get renderer()
+            {
+                return this.#renderer;
+            }
+
+            set renderer(renderer)
+            {
+                this.#renderer = renderer;
+            }
+
+
+        };
+
+        class CarObject extends GameObject 
+        {
             #position;
             #width;
             #height;
@@ -142,90 +240,112 @@
             #engineForce;
             #dragConstant;
             #rollingResistanceConstant;
+            #brakingConstant;
             #mass;
             
-            #tire = new Vec2D(8.0, 20.0);
+            #tire = new Vector2D(8.0, 20.0); // 0.2 x 0.34
 
-            constructor(x, y, width, height) {
-                this.#position = new Vec2D(x, y);        // position of car
-                this.#width = width;                     // width of car
-                this.#height = height;                   // height of car
-                this.#rotation = 0.0;                    // rotation of car
-                this.#unitVector = new Vec2D(0.0, 1.0);  // unit vector (car heading direction)
-                this.#velocity = new Vec2D(0.0, 0.0);    // velocity of car
-                this.#engineForce = 1.0;
-                this.#dragConstant = 0.4257;
+            constructor(x, y, width, height) 
+            {
+                super();
+
+                this.#position                  = new Vector2D(x, y);     // position of car
+                this.#width                     = width;                  // width of car
+                this.#height                    = height;                 // height of car
+                this.#rotation                  = 0.0;                    // rotation of car
+                this.#unitVector                = new Vector2D(0.0, 1.0); // unit vector (car heading direction)
+                this.#velocity                  = new Vector2D(0.0, 0.0); // velocity of car
+                this.#engineForce               = 1.0;
+                this.#dragConstant              = 0.4257;
                 this.#rollingResistanceConstant = 12.8;
-                this.#mass = 1500.0;
+                this.#brakingConstant           = 1.0;
+                this.#mass                      = 1500.0;
+
+                this.renderer = new CarRenderer();
             }
 
-            get position() {
+            get position() 
+            {
                 return this.#position;
             }
 
-            set position(value) {
-                console.assert(value instanceof Vec2D);
+            set position(value) 
+            {
                 this.#position = value;
             }
 
-            get x() {
+            get x() 
+            {
                 return this.position.x;
             }
 
-            get y() {
+            get y() 
+            {
                 return this.position.y;
             }
 
-            get width() {
+            get width() 
+            {
                 return this.#width;
             }
 
-            get height() {
+            get height() 
+            {
                 return this.#height;
             }
 
-            get rotation() {
+            get rotation() 
+            {
                 return this.#rotation;
             }
 
-            set rotation(value) {
+            set rotation(value) 
+            {
                 this.#rotation = value;
             }
 
-            get unitVector() {
+            get unitVector() 
+            {
                 return this.#unitVector;
             }
 
-            get tire() {
+            get tire() 
+            {
                 return this.#tire;
             }
 
-            get velocity() {
+            get velocity() 
+            {
                 return this.#velocity;
             }
 
-            set velocity(value) {
-                console.assert(value instanceof Vec2D);
+            set velocity(value) 
+            {
                 this.#velocity = value;
             }
             
-            get engineForce() {
+            get engineForce() 
+            {
                 return this.#engineForce;
             }
 
-            get dragConstant() {
+            get dragConstant() 
+            {
                 return this.#dragConstant;
             }
 
-            get rollingResistanceConstant() {
+            get rollingResistanceConstant() 
+            {
                 return this.#rollingResistanceConstant;
             }
 
-            get mass() {
+            get mass() 
+            {
                 return this.#mass;
             }
 
-            corners() {
+            vertices() 
+            {
                /*    
                 *    0         1
                 *      *-----*  
@@ -237,63 +357,102 @@
                 */
                 const c = this.position;
                 const theta = this.rotation;
-                const cons = [new Vec2D(this.x - this.width/2, this.y - this.height/2),
-                              new Vec2D(this.x + this.width/2, this.y - this.height/2),
-                              new Vec2D(this.x + this.width/2, this.y + this.height/2),
-                              new Vec2D(this.x - this.width/2, this.y + this.height/2)];
+                const vertices = [
+                    new Vector2D(
+                        this.x - this.width/2, 
+                        this.y - this.height/2
+                    ),
+                   
+                    new Vector2D(
+                        this.x + this.width/2, 
+                        this.y - this.height/2
+                    ),
+                    
+                    new Vector2D(
+                        this.x + this.width/2, 
+                        this.y + this.height/2
+                    ),
+                    
+                    new Vector2D(
+                        this.x - this.width/2, 
+                        this.y + this.height/2
+                    )
+                ];
                 
-                return cons.map(p => p.rotated(theta, c));
+                return vertices.map(v => v.rotated(theta, c));
             }
 
-            wheel(index) {
+            wheel(index) 
+            {
                 const c = this.position;
                 const theta = this.rotation;
                 const tire = this.tire;
-                const ws = [new Vec2D(c.x - this.width/2, c.y - 3*this.height/10),
-                            new Vec2D(c.x + this.width/2, c.y - 3*this.height/10),
-                            new Vec2D(c.x + this.width/2, c.y + 3*this.height/10),
-                            new Vec2D(c.x - this.width/2, c.y + 3*this.height/10)];
 
                 let wheel;
 
                 switch (index) {
                     case 0: {
-                        wheel = new Vec2D(c.x - this.width/2, c.y - 3*this.height/10);
+                        wheel = new Vector2D(
+                            c.x - this.width/2, 
+                            c.y - 3*this.height/10
+                        );
                     } break;
                     case 1: {
-                        wheel = new Vec2D(c.x + this.width/2, c.y - 3*this.height/10);
+                        wheel = new Vector2D(
+                            c.x + this.width/2, 
+                            c.y - 3*this.height/10
+                        );
                     } break;
                     case 2: {
-                        wheel = new Vec2D(c.x + this.width/2, c.y + 3*this.height/10);
+                        wheel = new Vector2D(
+                            c.x + this.width/2, 
+                            c.y + 3*this.height/10
+                        );
                     } break;
                     case 3: {
-                        wheel = new Vec2D(c.x - this.width/2, c.y + 3*this.height/10);
+                        wheel = new Vector2D(
+                            c.x - this.width/2, 
+                            c.y + 3*this.height/10
+                        );
                     } break;
                     default:
-                        return [];
+                        throw new Error("CarObject.wheel(index) : Incorrect index was passed!");
                 }
 
-                return { center  : wheel,
-                         corners : [new Vec2D(wheel.x - tire.x/2, wheel.y - tire.y/2).rotated(theta, c),
-                                    new Vec2D(wheel.x + tire.x/2, wheel.y - tire.y/2).rotated(theta, c),
-                                    new Vec2D(wheel.x + tire.x/2, wheel.y + tire.y/2).rotated(theta, c),
-                                    new Vec2D(wheel.x - tire.x/2, wheel.y + tire.y/2).rotated(theta, c)] };
+                return { 
+                    center  : wheel,
+                    vertices : [
+                        new Vector2D(
+                            wheel.x - tire.x/2, 
+                            wheel.y - tire.y/2
+                        ).rotated(theta, c),
+
+                        new Vector2D(
+                            wheel.x + tire.x/2, 
+                            wheel.y - tire.y/2
+                        ).rotated(theta, c),
+
+                        new Vector2D(
+                            wheel.x + tire.x/2, 
+                            wheel.y + tire.y/2
+                        ).rotated(theta, c),
+                        
+                        new Vector2D(
+                            wheel.x - tire.x/2, 
+                            wheel.y + tire.y/2
+                        ).rotated(theta, c)
+                    ]
+                };
             }
 
-            wheels() {
-                const wheelIndecies = [0, 1, 2, 3];
-                return wheelIndecies.map(index => {
-                    return this.wheel(index);
-                });
+            wheels() 
+            {
+                const indecies = [0, 1, 2, 3];
+                return indecies.map(index => this.wheel(index));
             }
 
-            update(dt) {
-                // const pos = this.position;
-                // const theta = this.rotation;
-                // const uv = this.heading;
-                // const rv = v.rotated(theta);
-                // this.position = pos.add(rv);
-
+            update(dt) 
+            {
                 const time  = dt/SECOND_TO_MILLISECONDS;
 
                 const engineForce               = this.engineForce
@@ -305,41 +464,49 @@
                 const initialVelocity           = this.velocity;
                 const initialPosition           = this.position;
                 
-                const tractionForce             = unitVector.mult(engineForce);                              // F_traction = u / engineForce
-                const dragForce                 = initialVelocity.mult(-dragConstant*initialVelocity.abs()); // F_drag = -C_drag * v * |v|
-                const rollingResistanceForce    = initialVelocity.mult(-rollingResistanceConstant);          // F_rr = -C_rr * v
+                const tractionForce             = unitVector.multiplyScalar(engineForce);                              // F_traction = u / engineForce
+                const dragForce                 = initialVelocity.multiplyScalar(-dragConstant*initialVelocity.abs()); // F_drag = -C_drag * v * |v|
+                const rollingResistanceForce    = initialVelocity.multiplyScalar(-rollingResistanceConstant);          // F_rr = -C_rr * v
 
-                const force                     = tractionForce.add(dragForce, rollingResistanceForce);      // F = F_traction + F_drag + F_rr
-                const acceleration              = force.mult(1.0/mass);                                      // a = F / M
+                const force                     = tractionForce.add(dragForce, rollingResistanceForce);                // F = F_traction + F_drag + F_rr
+                const acceleration              = force.multiplyScalar(1.0/mass);                                      // a = F / M
 
-                const velocity                  = initialVelocity.add(acceleration.mult(time));              // v = v + dt * a
+                const velocity                  = initialVelocity.add(acceleration.multiplyScalar(time));              // v = v + dt * a
                 this.velocity                   = velocity;
 
-                const position                  = initialPosition.add(velocity.mult(time));                  // p = p + dt * v
+                const position                  = initialPosition.add(velocity.multiplyScalar(time));                  // p = p + dt * v
                 this.position                   = position;
             }
-        }
+        };
 
-        class BasicController {
-            constructor(speaker, controllable, buttonMapping) {
-                speaker.addEventListener('keypress', e => {
-                    const keyCode = e.code;
-                    const action = buttonMapping[keyCode];
+        class CarRenderer
+        {
+            render(car)
+            {
+                const vertices = car.vertices();
+                const wheels = car.wheels();
+                const tire = car.tire;
 
-                    if (action !== undefined) {
-                        action.call(action, controllable);
-                    }
+                gameCanvasContext.fillStyle = 'rgba(255, 0, 0, 1.0)';
+                const c = new Path2D(`M ${vertices[0].x} ${vertices[0].y} L ${vertices[1].x} ${vertices[1].y} L ${vertices[2].x} ${vertices[2].y} L ${vertices[3].x} ${vertices[3].y} Z`);
+                gameCanvasContext.fill(c);
 
+                gameCanvasContext.fillStyle = 'rgba(0, 255, 0, 1.0)';
+                wheels.forEach(wheel => {
+                    const vertices = wheel.vertices;
+                    const w = new Path2D(`M ${vertices[0].x} ${vertices[0].y} L ${vertices[1].x} ${vertices[1].y} L ${vertices[2].x} ${vertices[2].y} L ${vertices[3].x} ${vertices[3].y} Z`);
+                    gameCanvasContext.fill(w);
                 });
             }
         };
 
-        car = new CarObject(200, 200, 40, 100);
-        const controller = new BasicController(window, car, { 
-            'KeyA' : (controllable) => { controllable.rotation = 2*Math.PI*Math.random() } 
-        });
+        const objects = [];
         
-        start();
+        const car = new CarObject(canvasWidth/2, canvasHeight/2, 40, 100);
+        objects.push(car);
+
+        const gameLoop = new GameLoop(objects);
+        gameLoop.start();
 
     </script>
 </body>
