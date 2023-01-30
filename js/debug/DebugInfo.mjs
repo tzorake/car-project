@@ -92,7 +92,7 @@ export class DebugInfo
         const text = document.createTextNode(this.#gameObject.constructor.name);
         header.append(text);
 
-        const content = document.createElement('div');
+        const content = document.createElement('pre');
         content.className = 'content';
 
         this.#props.forEach(prop => {

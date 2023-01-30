@@ -45,4 +45,5 @@ body
 .debug-widget .content
 {
     height: 88%;
+    tab-size: 2;
 }

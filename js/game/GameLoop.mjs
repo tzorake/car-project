@@ -1,5 +1,7 @@
 import { TypeChecker } from "../math/TypeChecker.mjs";
 
+const SECOND_TO_MILLISECONDS = 1000;
+
 export class GameLoop
 {
     #startTimeStamp = null;
@@ -19,7 +21,7 @@ export class GameLoop
 
             if (this.previousTimeStamp !== null) 
             {
-                const dt = timestamp - this.previousTimeStamp;
+                const dt = (timestamp - this.previousTimeStamp) / SECOND_TO_MILLISECONDS;
 
                 this.world.update(dt);
                 this.world.render();

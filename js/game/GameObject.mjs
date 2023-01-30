@@ -6,6 +6,7 @@ export class GameObject
     #position;
     #scale;
     #velocity;
+    #acceleration;
     #heading;
     #mass;
 
@@ -14,14 +15,15 @@ export class GameObject
 
     constructor(x, y, width, height)
     {
-        this.#position   = new Vector2D(x, y);          // position
-        this.#scale      = new Vector2D(width, height); // width and height
-        this.#velocity   = new Vector2D(0.0, 0.0);      // velocity
-        this.#heading    = new Vector2D(1.0, 0.0);      // heading direction
-        this.#mass       = 1.0;                         // mass
+        this.#heading      = new Vector2D(1.0, 0.0);      // heading direction
+        this.#position     = new Vector2D(x, y);          // position
+        this.#scale        = new Vector2D(width, height); // width and height
+        this.#velocity     = new Vector2D(0.0, 0.0);      // velocity
+        this.#acceleration = new Vector2D(0.0, 0.0);      // acceleration
+        this.#mass         = 0.0;                         // mass
 
-        this.#renderer   = null;                        // renderer
-        this.#controller = null;                        // controller
+        this.#renderer   = null;                          // renderer
+        this.#controller = null;                          // controller
     }
 
     get position() 
@@ -32,6 +34,16 @@ export class GameObject
     set position(value) 
     {
         this.#position = value;
+    }
+
+    get angle() 
+    {
+        return this.#heading.angle;
+    }
+
+    set angle(value) 
+    {
+        this.#heading.angle = value;
     }
 
     get scale() 
@@ -47,6 +59,16 @@ export class GameObject
     get velocity() 
     {
         return this.#velocity;
+    }
+
+    set acceleration(value) 
+    {
+        this.#acceleration = value;
+    }
+
+    get acceleration() 
+    {
+        return this.#acceleration;
     }
 
     set velocity(value) 
@@ -121,23 +143,23 @@ export class GameObject
         const [width, height] = [scale.x, scale.y]
         const vertices = [
             new Vector2D(
-                x - width/2, 
-                y - height/2
+                - width/2, 
+                - height/2
             ),
             new Vector2D(
-                x + width/2, 
-                y - height/2
+                + width/2, 
+                - height/2
             ),
             new Vector2D(
-                x + width/2, 
-                y + height/2
+                + width/2, 
+                + height/2
             ),
             new Vector2D(
-                x - width/2, 
-                y + height/2
+                - width/2, 
+                + height/2
             )
         ];
         
-        return vertices.map(v => v.rotated(angle, center));
+        return vertices.map(v => v.rotated(angle));
     }
 }

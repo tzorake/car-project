@@ -1,28 +1,20 @@
 const BODY = document.querySelector('body');
 const CANVAS = document.querySelector('.container .game-canvas');
 const CONTEXT = CANVAS.getContext('2d');
-
+const SCALE = 10;
 
 
 export class GameUtils
 {
-    constructor()
+    static SETUP_CANVAS()
     {
-
-    }
-
-    static setup()
-    {
-        // CANVAS.setAttribute('width',  `${BODY.clientWidth}px`);
-        // CANVAS.setAttribute('height', `${BODY.clientHeight}px`);
-        // CONTEXT.imageSmoothingEnabled = false;
-    
         CANVAS.width = BODY.clientWidth;
         CANVAS.height = BODY.clientHeight;
         CANVAS.style.width = `${BODY.clientWidth}px`;
         CANVAS.style.height = `${BODY.clientHeight}px`;
         const dpi = window.devicePixelRatio;
-        CANVAS.getContext('2d').scale(dpi, dpi);
+        CONTEXT.scale(dpi, dpi);
+        CONTEXT.imageSmoothingEnabled = false;
     }
 
     static get CANVAS()
@@ -33,6 +25,11 @@ export class GameUtils
     static get CONTEXT()
     {
         return CONTEXT;
+    }
+
+    static get SCALE()
+    {
+        return SCALE;
     }
 
     static BACKGROUND(color) 

@@ -1,115 +1,151 @@
-
 import { Rectangle } from "../math/Rectangle.mjs";
-import { CarObjectController, DirectionState } from "./CarObjectController.mjs";
+import { CarAction, CarObjectController } from "./CarObjectController.mjs";
 import { CarObjectRenderer } from "./CarObjectRenderer.mjs";
 import { DebugInfo } from "../debug/DebugInfo.mjs";
 import { GameObject } from "../game/GameObject.mjs";
+import { Vector2D } from "../math/Vector2D.mjs";
+import { MathFunction } from "../math/MathFunction.mjs";
 
-const SECOND_TO_MILLISECONDS = 1000;
+let iota = 0;
+const CarGear = {};
+CarGear.REVERSE = iota++;
+CarGear.ZERO    = iota++;
+CarGear.FIRST   = iota++;
+CarGear.SECOND  = iota++;
+CarGear.THIRD   = iota++;
+CarGear.FORTH   = iota++;
+CarGear.FIFTH   = iota++;
+
+const CarGears = {};
+CarGears[CarGear.REVERSE] = -2.9;
+CarGears[CarGear.ZERO]    =  0.0;
+CarGears[CarGear.FIRST]   =  3.0;
+CarGears[CarGear.SECOND]  =  2.0;
+CarGears[CarGear.THIRD]   =  1.5;
+CarGears[CarGear.FORTH]   =  1.25;
+CarGears[CarGear.FIFTH]   =  0.75;
+
+const MAX_STEERING_ANGLE = Math.PI / 12;
 
 export class CarObject extends GameObject
 {
     #debugWidget = null;
-
-    // #engineForce               = 8000.0*5;
-    // #reverseForce              = 12000.0*5;
-    // #brakingForce              = 16800.0*5;
-
-    // #dragConstant              = 0.4257;
-    // #rollingResistanceConstant = 12.8;
-
-    // #steer = 0.0;
     
-    constructor(x, y, width, height)
+    constructor(x, y, length, width)
     {
-        super(x, y, width, height);
-
-        this.mass = 1200.0;
+        super(x, y, length, width);
 
         this.renderer = new CarObjectRenderer(this);
         this.controller = new CarObjectController(this);
         this.controller.connect();
      
-        this.debugWidget = new DebugInfo(this, ['position', 'scale', 'velocity', 'heading'], new Rectangle(10, 10, 275, 200));
+        this.#debugWidget = new DebugInfo(this, ['position', 'scale', 'velocity', 'acceleration', 'angle'], new Rectangle(10, 10, 275, 200));
+
+        this.angle = 0.0
+        this.length = this.scale.x;
+        this.width = this.scale.y;
+        this.brake_deceleration = 30000
+        this.free_deceleration = 2
+
+        this.gear = CarGear.ZERO;
+        this.throttle = 0
+        this.brakes = 0
+        this.wheel_rpm = 0
+        this.angular_velocity = 0
+        this.force = new Vector2D(0, 0)
+
+        this.rpm_lut = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000];
+        this.torque_lut = [200, 325, 475, 550, 550, 500, 375, 300, 0];
+        this.rpm = 1000;
+        this.diff_ratio = 3.42
+        this.n = 0.8
+        this.wheel_radius = 0.35
+        this.mass = 1100
+        this.c_drag = 0.4257
+        this.cornering_stiffness_f = -5.0
+        this.cornering_stiffness_r = -5.2
+        this.max_grip = 2.0
     }
 
     update(dt) 
     {
-        // const { direction, actions } = this.controller.values();
+        const controller = this.controller;
+        const direction = controller.direction;
+        const actions = controller.actions;
 
-        // const time  = dt/SECOND_TO_MILLISECONDS;
+        controller.update();
 
-        // const engineForce               = this.engineForce;
-        // const reverseForce              = this.reverseForce;
-        // const brakingForce              = this.brakingForce;
-        // const mass                      = this.mass;
-        // const dragConstant              = this.dragConstant;
-        // const rollingResistanceConstant = this.rollingResistanceConstant;
-
-        // const L                         = 3/5*this.scale.x;
-
-        // const heading                   = this.heading;
-        // const initialPosition           = this.position;
+        if (this.rpm < 2000)
+        {
+            this.rpm = 2000;
+        }
+        const torque = MathFunction.interp(this.rpm, this.rpm_lut, this.torque_lut);
+        const throttle = (actions.keyPressed[CarAction.THROTTLE] | actions.keyPressed[CarAction.REVERSE]) * Math.abs(direction.horizontal);
+        const steer = (actions.keyPressed[CarAction.TURN_RIGHT] | actions.keyPressed[CarAction.TURN_LEFT]) * direction.vertical;
         
-        // let velocity                    = this.velocity.x;
-        // let angularVelocity             = this.velocity.y;
+        this.gear = actions.keyPressed[CarAction.REVERSE] ? CarGear.REVERSE : (actions.keyPressed[CarAction.THROTTLE] ? CarGear.FIRST : CarGear.ZERO);
 
-        // const tractionForce             = (direction.horizontal > 0 ? engineForce : 0.0) -
-        //                                   (direction.horizontal < 0 ? reverseForce : 0.0) -
-        //                                   (actions.brake ? (Math.abs(velocity) < 0.5 ? 0 : (velocity > 0 ? DirectionState.POSITIVE : DirectionState.NEGATIVE) * brakingForce) : 0.0)  
+        const steering = MAX_STEERING_ANGLE * steer;
 
-        // const dragForce                 = -dragConstant * velocity * velocity;
-        // const rollingResistanceForce    = -rollingResistanceConstant * velocity;
+        const traction_force = torque * this.diff_ratio * throttle * CarGears[this.gear] * (this.n / this.wheel_radius) - 
+                               this.brake_deceleration * this.brakes * Math.sign(this.velocity.x);
 
-        // const force                     = tractionForce + dragForce + rollingResistanceForce;
-        // const acceleration              = force / mass;
+        const resistance_force = new Vector2D(-this.c_drag * this.velocity.x * Math.abs(this.velocity.x) - 12.8 * this.velocity.x,
+                                              -this.c_drag * this.velocity.y * Math.abs(this.velocity.y) - 12.8 * this.velocity.y)
 
-        // velocity                        = velocity + acceleration * time;
-        // velocity                        = (Math.abs(velocity) < 0.5 && direction.horizontal === DirectionState.ZERO) ? 0.0 : velocity;
-        
-        // const steerInput = direction.vertical;
+        if (this.velocity.x > 5.55)
+        {
+            const yawspeed = this.angular_velocity * 2;
 
-        // if (steerInput !== DirectionState.ZERO) 
-        // {
-        //     this.steer = Math.min(Math.max(this.steer + steerInput * dt * 1.0, -1.0), 1.0);
-        // } 
-        // else 
-        // {
-        //     if (this.steer > 0) 
-        //     {
-        //         this.steer = Math.max(this.steer - dt * 0.1, 0);
-        //     } 
-        //     else if (this.steer < 0) 
-        //     {
-        //         this.steer = Math.min(this.steer + dt * 0.1, 0);
-        //     }
-        // }
+            const [rot_angle, sideslip] = this.velocity.x == 0 ? [0, 0] : [Math.atan2(yawspeed, this.velocity.x), Math.atan2(this.velocity.y, this.velocity.x)];
 
-        // const avel = Math.min(Math.abs(velocity), 240.0); // m/s
-        // this.steer = this.steer * (1.0 - avel / 280.0);
+            const slipanglefront = sideslip + rot_angle - steering;
+            const slipanglerear = sideslip - rot_angle;
 
-        // const steerAngle = this.steer * Math.PI/4;
+            const flatf = new Vector2D(0, 0);
+            const flatr = new Vector2D(0, 0);
 
-        // const R = L / Math.sin(steerAngle);
-        // angularVelocity = velocity / R;
-        // this.heading.angle += angularVelocity * time;
-        // this.heading.angle = this.heading.angle % (Math.PI * 2);
+            flatf.x = 0;
+            flatf.y = this.cornering_stiffness_f * slipanglefront;
+            flatf.y = Math.min(this.max_grip, flatf.y);
+            flatf.y = Math.max(-this.max_grip, flatf.y);
+            flatf.y *= this.mass * 4.9;
 
+            flatr.x = 0;
+            flatr.y = this.cornering_stiffness_r * slipanglerear;
+            flatr.y = Math.min(this.max_grip, flatr.y);
+            flatr.y = Math.max(-this.max_grip, flatr.y);
+            flatr.y *= this.mass * 4.9;
 
-        // this.velocity = new Vector2D(velocity, angularVelocity);
+            this.force.x = traction_force + Math.sin(steering) * flatf.x + flatr.x + resistance_force.x
+            this.force.y = Math.cos(steering) * flatf.y + flatr.y + resistance_force.y
 
-        // const position                  = initialPosition.add(heading.multiplyScalar(velocity*time));
-        // this.position                   = position;
-    }
+            const torque = 1.5 * (flatf.y - flatr.y);
 
-    get debugWidget()
-    {
-        return this.#debugWidget;
-    }
+            this.acceleration = this.force.multiplyScalar(1.0 / this.mass);
+            this.wheel_rpm = this.velocity.x / this.wheel_radius * 30 / Math.PI;
 
-    set debugWidget(value)
-    {
-        this.#debugWidget = value;
+            this.velocity = this.velocity.add(this.acceleration.multiplyScalar(dt));
+            this.position = this.position.add(this.velocity.rotated(this.angle).multiplyScalar(dt));
+
+            const angular_acceleration = torque / 1000;
+            this.angular_velocity += angular_acceleration * dt;
+            this.angle += this.angular_velocity * dt;
+        }
+        else
+        {
+            this.force.x = traction_force + resistance_force.x;
+            this.force.y = resistance_force.y;
+            this.acceleration = this.force.multiplyScalar(1.0 / this.mass);
+            this.wheel_rpm = this.velocity.x / this.wheel_radius * 30 / Math.PI;
+
+            this.velocity = this.velocity.add(this.acceleration.multiplyScalar(dt));
+
+            const angular_velocity = steering ? this.velocity.x / (this.length / Math.tan(steering)) : 0;
+
+            this.position = this.position.add(this.velocity.rotated(this.angle).multiplyScalar(dt));
+            this.angle += angular_velocity * dt;
+        }
     }
 
     get position()
@@ -120,7 +156,7 @@ export class CarObject extends GameObject
     set position(value)
     {
         super.position = value;
-        this.debugWidget.update();
+        this.#debugWidget.update();
     }
 
     get velocity()
@@ -131,6 +167,6 @@ export class CarObject extends GameObject
     set velocity(value)
     {
         super.velocity = value;
-        this.debugWidget.update();
+        this.#debugWidget.update();
     }
 };

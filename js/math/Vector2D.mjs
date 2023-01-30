@@ -98,7 +98,20 @@ export class Vector2D
         throw new Error('Vector2D.add(...other) : Each of function argument must have `Vector2D` type!');
     }
 
-    multiply(other) 
+    sub(...other)
+    {
+        if (other.every(v => TypeChecker.isVector2D(v)))
+        {
+            return new Vector2D(
+                this.x + other.reduce((acc, item) => acc -= item.x, 0.0), 
+                this.y + other.reduce((acc, item) => acc -= item.y, 0.0)
+            );
+        }
+        
+        throw new Error('Vector2D.sub(...other) : Each of function argument must have `Vector2D` type!');
+    }
+
+    dot(other) 
     {
         if (TypeChecker.isVector2D(other)) 
         {

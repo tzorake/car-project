@@ -1,3 +1,5 @@
+import { GameUtils } from "./GameUtils.mjs";
+
 export class GameWorld
 {
     #objects
@@ -28,6 +30,9 @@ export class GameWorld
     render()
     {
         const objects = this.objects;
+
+        GameUtils.BACKGROUND('rgba(32, 33, 36, 1.0)');
+
         objects.forEach(object => {
             object.render();
         });
