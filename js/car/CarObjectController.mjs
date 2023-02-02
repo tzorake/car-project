@@ -231,7 +231,7 @@ export class CarObjectController extends GameObjectController
         window.removeEventListener('keyup', this.#keyUp);
     }
 
-    update()
+    update(dt)
     {
         const direction = this.direction;
         const actions = this.actions;

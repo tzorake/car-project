@@ -1,3 +1,4 @@
+import { MathFunction } from "./MathFunction.mjs";
 import { TypeChecker } from "./TypeChecker.mjs";
 
 export class Vector2D 
@@ -5,7 +6,7 @@ export class Vector2D
     #x;
     #y;
 
-    constructor(x, y) 
+    constructor(x = 0.0, y = 0.0) 
     {
         if (TypeChecker.isNumber(x) && TypeChecker.isNumber(y))
         {
@@ -132,6 +133,26 @@ export class Vector2D
         }
 
         throw new Error('Vector2D.multiplyScalar(scalar) : Function argument should has `Number` type!');
+    }
+
+    normalized()
+    {
+        const x = this.x / this.magnitude();
+        const y = this.y / this.magnitude();
+        return new Vector2D(x, y);
+    }
+
+    clampMagnitude(magnitude)
+    {
+        return this.magnitude() > magnitude ? this.normalized().multiplyScalar(magnitude) : new Vector2D(this.x, this.y);
+    }
+
+    static lerp(a, b, t)
+    {
+        return new Vector2D(
+            MathFunction.lerp(a.x, b.x, t),
+            MathFunction.lerp(a.y, b.y, t) 
+        )
     }
 
     toString()

@@ -8,9 +8,12 @@ export class GameObjectRenderer
         this.gameObject = gameObject;
     }
 
-    render()
+    render(dt)
     {
         const gameObject = this.gameObject;
+        const world = gameObject.world;
+        const camera = world.camera;
+        const offset = camera.offset;
 
         if (!TypeChecker.isGameObject(gameObject))
         {
@@ -18,8 +21,8 @@ export class GameObjectRenderer
         }
 
         const context = GameUtils.CONTEXT;
-        const scaleFactor = 10;
-        const position = gameObject.position.multiplyScalar(scaleFactor);
+        const scaleFactor = GameUtils.SCALE;
+        const position = gameObject.position.add(offset).multiplyScalar(scaleFactor);
         const heading = gameObject.heading;
 
         const vertices = gameObject.vertices().map(item => item.multiplyScalar(scaleFactor).add(position));
@@ -31,10 +34,10 @@ export class GameObjectRenderer
         context.strokeStyle = 'rgba(0, 0, 0, 1.0)';
         context.fill(object);
 
-        const xAxis = heading.multiplyScalar(scaleFactor);
+        const xAxis = heading.multiplyScalar(scaleFactor*4);
         const xEnd = position.add(xAxis);
 
-        const yAxis = heading.rotated(Math.PI/2).multiplyScalar(scaleFactor);
+        const yAxis = heading.rotated(Math.PI/2).multiplyScalar(scaleFactor*4);
         const yEnd = position.add(yAxis);
 
         context.lineWidth = 0.5;

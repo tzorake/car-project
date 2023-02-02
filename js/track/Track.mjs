@@ -58,7 +58,7 @@ export class Track extends GameObject
         this.points = []; //[new Vector2D(20, 15), new Vector2D(55, 5), new Vector2D(90, 15), new Vector2D(100, 50), new Vector2D(90, 85), new Vector2D(55, 95), new Vector2D(20, 85), new Vector2D(10, 50)];
         this.curves = new TrackCurveSet(
             null, 
-            new TrackCurve(this.points, SplineType.CatmullRomSpline, 100, DisplayMode.Invisible), 
+            new TrackCurve(this.points, SplineType.CatmullRomSpline, 100, DisplayMode.Visible), 
             null
         );
         
@@ -72,5 +72,6 @@ export class Track extends GameObject
         if (this.points.length < 4) return;
 
         this.curves.chain();
+        console.info(this.points)
     }
 }

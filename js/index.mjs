@@ -10,7 +10,7 @@ const canvas = GameUtils.CANVAS;
 
 const gameObjects = [
     new Track(0, 0, canvas.width/GameUtils.SCALE, canvas.height/GameUtils.SCALE), 
-    new CarObject(10, 10, 5, 2)
+    new CarObject(0, 0, 5, 2)
 ];
 const gameWorld = new GameWorld(gameObjects);
 const gameLoop = new GameLoop(gameWorld);

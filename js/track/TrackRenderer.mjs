@@ -9,11 +9,16 @@ export class TrackRenderer extends GameObjectRenderer
         super(gameObject);
     }
 
-    render()
+    render(dt)
     {
+        const gameObject = this.gameObject;
+        const world = gameObject.world;
+        const camera = world.camera;
+        const offset = camera.offset;
+
         const context = GameUtils.CONTEXT;
-        const curves = this.gameObject.curves.get();
-        // const points = this.gameObject.points;
+        const scale = GameUtils.SCALE;
+        const curves = gameObject.curves.get();
 
         function renderCurves()
         {
@@ -35,10 +40,12 @@ export class TrackRenderer extends GameObjectRenderer
                 context.beginPath();
                 segments.concat(segments[0]).forEach(segment => {
                     const points = segment.points;
-                    points.slice(0,-1).forEach((vi, index) => {
-                        const vj = points[index + 1];
-                        context.moveTo(vi.x*GameUtils.SCALE, vi.y*GameUtils.SCALE);
-                        context.lineTo(vj.x*GameUtils.SCALE, vj.y*GameUtils.SCALE);
+                    points.slice(0,-1).forEach((point, index) => {
+                        const vi = point.add(offset).multiplyScalar(scale);
+                        const vj = points[index + 1].add(offset).multiplyScalar(scale);
+                        
+                        context.moveTo(vi.x, vi.y);
+                        context.lineTo(vj.x, vj.y);
                     });
                 });
                 context.stroke();
@@ -62,15 +69,18 @@ export class TrackRenderer extends GameObjectRenderer
                 context.strokeStyle = 'rgba(255, 255, 255, 1.0)';
                 context.lineWidth = 4;
         
-                points.forEach(point => {
+                points.forEach(p => {
+                    const point = p.add(offset).multiplyScalar(scale);
 
-                    if (point.mode !== DisplayMode.Visible)  return;
+                    if (p.mode !== DisplayMode.Visible) return;
 
                     context.beginPath();
-                    context.arc(point.x*GameUtils.SCALE, point.y*GameUtils.SCALE, 6, 0, 2*Math.PI);
+                    context.arc(point.x, point.y, 6, 0, 2*Math.PI);
                     context.fill();
                     context.stroke();
-                })
+
+                    
+                });
                 
                 context.restore();
             });

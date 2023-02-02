@@ -1,31 +1,9 @@
 import { Rectangle } from "../math/Rectangle.mjs";
-import { CarAction, CarObjectController } from "./CarObjectController.mjs";
+import { CarObjectController } from "./CarObjectController.mjs";
 import { CarObjectRenderer } from "./CarObjectRenderer.mjs";
 import { DebugInfo } from "../debug/DebugInfo.mjs";
 import { GameObject } from "../game/GameObject.mjs";
 import { Vector2D } from "../math/Vector2D.mjs";
-import { MathFunction } from "../math/MathFunction.mjs";
-
-let iota = 0;
-const CarGear = {};
-CarGear.REVERSE = iota++;
-CarGear.ZERO    = iota++;
-CarGear.FIRST   = iota++;
-CarGear.SECOND  = iota++;
-CarGear.THIRD   = iota++;
-CarGear.FORTH   = iota++;
-CarGear.FIFTH   = iota++;
-
-const CarGears = {};
-CarGears[CarGear.REVERSE] = -2.9;
-CarGears[CarGear.ZERO]    =  0.0;
-CarGears[CarGear.FIRST]   =  3.0;
-CarGears[CarGear.SECOND]  =  2.0;
-CarGears[CarGear.THIRD]   =  1.5;
-CarGears[CarGear.FORTH]   =  1.25;
-CarGears[CarGear.FIFTH]   =  0.75;
-
-const MAX_STEERING_ANGLE = Math.PI / 12;
 
 export class CarObject extends GameObject
 {
@@ -41,30 +19,40 @@ export class CarObject extends GameObject
      
         this.#debugWidget = new DebugInfo(this, ['position', 'scale', 'velocity', 'heading', 'angle'], new Rectangle(10, 10, 275, 200));
 
-        this.maxSpeed = 25;
-        this.maxAngle = 2*Math.PI
-        this.drag = 0.975
-        this.traction = 0.95;
+        // this.maxVelocity = 50.0
+        // this.maxSpeed = 25.0;
+        // this.drag = 0.98
+        // this.steerAngle = Math.PI/20;
+        // this.traction = 10.0;
+        
+        this.maxVelocity = 50.0
+        this.maxSpeed = 25.0;
+        this.drag = 0.98
+        this.steerAngle = Math.PI/20;
+        this.traction = 0.1;
     }
 
     update(dt)
     {
         const controller = this.controller;
         
-        controller.update();
-        
         const direction = controller.direction;
         const actions = controller.actions;
 
-        this.velocity = this.velocity.add(this.heading.multiplyScalar(direction.horizontal*dt));
-        this.position = this.position.add(this.velocity);
+        const acceleration = this.heading.multiplyScalar(this.maxVelocity * direction.horizontal)
 
-        this.velocity = this.velocity.multiplyScalar(this.drag);
-        this.velocity = this.velocity.clampMagnitude(this.maxSpeed);
+        this.velocity = this.velocity.add(acceleration.multiplyScalar(dt));
+        this.position = this.position.add(this.velocity.multiplyScalar(dt));
 
-        this.angle   += this.velocity.magnitude() * this.maxAngle * direction.vertical * dt;
+        this.angle   += direction.vertical * this.velocity.magnitude() * this.steerAngle * dt;
 
-        this.velocity = Vector2D.lerp(this.velocity.normalized(), this.heading.multiplyScalar(this.velocity.magnitude()), this.traction*dt)//.multiplyScalar(this.velocity.magnitude())
+        if (this.velocity.magnitude() > 0)
+        {
+            this.velocity = this.velocity.multiplyScalar(this.drag);
+            this.velocity = this.velocity.clampMagnitude(this.maxSpeed);
+    
+            this.velocity = Vector2D.lerp(this.velocity.normalized(), this.heading, this.traction*dt).multiplyScalar(this.velocity.magnitude())
+        }
     }
 
     get position()

@@ -26,4 +26,9 @@ export class GameObjectController
     {
         throw new Error('GameObjectController.disconnect() : The method is not implemented yet!');
     }
+
+    update(dt)
+    {
+        throw new Error('GameObjectController.update(dt) : The method is not implemented yet!');
+    }
 };

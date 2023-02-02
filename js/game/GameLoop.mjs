@@ -24,7 +24,7 @@ export class GameLoop
                 const dt = (timestamp - this.previousTimeStamp) / SECOND_TO_MILLISECONDS;
 
                 this.world.update(dt);
-                this.world.render();
+                this.world.render(dt);
             }
 
             this.previousTimeStamp = timestamp;

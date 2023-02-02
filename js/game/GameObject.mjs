@@ -10,6 +10,8 @@ export class GameObject
     #heading;
     #mass;
 
+    #world;
+
     #renderer;
     #controller;
 
@@ -19,8 +21,6 @@ export class GameObject
         this.#position     = new Vector2D(x, y);          // position
         this.#scale        = new Vector2D(width, height); // width and height
         this.#velocity     = new Vector2D(0.0, 0.0);      // velocity
-        this.#acceleration = new Vector2D(0.0, 0.0);      // acceleration
-        this.#mass         = 0.0;                         // mass
 
         this.#renderer   = null;                          // renderer
         this.#controller = null;                          // controller
@@ -96,6 +96,16 @@ export class GameObject
         this.#mass = value;
     }
 
+    get world()
+    {
+        return this.#world;
+    }
+
+    set world(value) 
+    {
+        this.#world = value;
+    }
+
     get renderer() 
     {
         return this.#renderer;
@@ -121,7 +131,7 @@ export class GameObject
         throw new Error('GameObject.update(dt) : The method is not implemented yet!');
     }
 
-    render()
+    render(dt, offset)
     {
         const renderer = this.renderer;
 
@@ -130,7 +140,7 @@ export class GameObject
             throw new Error('GameObject.render() : `renderer`  has to be `isGameObjectRenderer` type!');
         }
 
-        renderer.render(this);
+        renderer.render(dt, offset);
     }
 
     vertices() 
