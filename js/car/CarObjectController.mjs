@@ -1,5 +1,7 @@
 import { DebugInfo } from "../debug/DebugInfo.mjs";
 import { GameObjectController } from "../game/GameObjectController.mjs";
+import { GameUtils } from "../game/GameUtils.mjs";
+import { EventListenerType } from "../game/GlobalGameController.mjs";
 import { MathFunction } from "../math/MathFunction.mjs";
 import { Rectangle } from "../math/Rectangle.mjs";
 
@@ -221,14 +223,16 @@ export class CarObjectController extends GameObjectController
 
     connect()
     {
-        window.addEventListener('keydown', this.#keyDown);
-        window.addEventListener('keyup', this.#keyUp);
+        const controller = GameUtils.CONTROLLER;
+        controller.addCallback(EventListenerType.KEYDOWN, this.#keyDown);
+        controller.addCallback(EventListenerType.KEYUP,   this.#keyUp);
     }
 
     disconnect()
     {
-        window.removeEventListener('keydown', this.#keyDown);
-        window.removeEventListener('keyup', this.#keyUp);
+        const controller = GameUtils.CONTROLLER;
+        controller.removeCallback(EventListenerType.KEYDOWN, this.#keyDown);
+        controller.removeCallback(EventListenerType.KEYUP,   this.#keyUp);
     }
 
     update(dt)

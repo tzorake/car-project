@@ -1,4 +1,5 @@
 import { TypeChecker } from "../math/TypeChecker.mjs";
+import { GameUtils } from "./GameUtils.mjs";
 
 const SECOND_TO_MILLISECONDS = 1000;
 
@@ -46,6 +47,9 @@ export class GameLoop
         }
 
         this.#world = world;
+        
+        const controller = GameUtils.CONTROLLER;
+        controller.connect();
     }
 
     get startTimeStamp() 

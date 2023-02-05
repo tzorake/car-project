@@ -135,11 +135,25 @@ export class Vector2D
         throw new Error('Vector2D.multiplyScalar(scalar) : Function argument should has `Number` type!');
     }
 
+    copy()
+    {
+        return new Vector2D(this.x, this.y);
+    }
+
+    normalize()
+    {
+        const m = this.magnitude();
+        if (m > 0)
+        {
+            this.x *= 1.0 / m;
+            this.y *= 1.0 / m;
+        }
+        return this;
+    }
+
     normalized()
     {
-        const x = this.x / this.magnitude();
-        const y = this.y / this.magnitude();
-        return new Vector2D(x, y);
+        return this.copy().normalize();
     }
 
     clampMagnitude(magnitude)

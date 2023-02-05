@@ -1,5 +1,6 @@
 import { GameObjectController } from "../game/GameObjectController.mjs";
 import { GameUtils } from "../game/GameUtils.mjs";
+import { EventListenerType } from "../game/GlobalGameController.mjs";
 import { Vector2D } from "../math/Vector2D.mjs";
 import { TrackControlPoint } from "./TrackControlPoint.mjs";
 
@@ -33,20 +34,18 @@ export class TrackController extends GameObjectController
 
     connect()
     {
-        const canvas = GameUtils.CANVAS;
-
-        canvas.addEventListener('mousedown', this.#mouseDown);
-        canvas.addEventListener('mouseup', this.#mouseUp);
-        canvas.addEventListener('mousemove', this.#mouseDragged);
+        const controller = GameUtils.CONTROLLER;
+        controller.addCallback(EventListenerType.MOUSEDOWN, this.#mouseDown);
+        controller.addCallback(EventListenerType.MOUSEUP,   this.#mouseUp);
+        controller.addCallback(EventListenerType.MOUSEMOVE, this.#mouseDragged);
     }
 
     disconnect()
     {
-        const canvas = GameUtils.CANVAS;
-
-        canvas.removeEventListener('mousedown', this.#mouseDown);
-        canvas.removeEventListener('mouseup', this.#mouseUp);
-        canvas.removeEventListener('mousemove', this.#mouseDragged);
+        const controller = GameUtils.CONTROLLER;
+        controller.removeCallback(EventListenerType.MOUSEDOWN, this.#mouseDown);
+        controller.removeCallback(EventListenerType.MOUSEUP,   this.#mouseUp);
+        controller.removeCallback(EventListenerType.MOUSEMOVE, this.#mouseDragged);
     }
 
     update(dt)
