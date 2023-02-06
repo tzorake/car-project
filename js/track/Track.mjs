@@ -61,7 +61,6 @@ export class Track extends GameObject
             new TrackCurve(this.points, SplineType.CatmullRomSpline, 100, DisplayMode.Visible), 
             null
         );
-        
         this.renderer = new TrackRenderer(this);
         this.controller = new TrackController(this);
         this.controller.connect();
@@ -69,9 +68,15 @@ export class Track extends GameObject
 
     update(dt)
     {
+        const controller = this.controller;
+            
+        if (controller)
+        {
+            controller.update(dt);
+        }
+
         if (this.points.length < 4) return;
 
         this.curves.chain();
-        console.info(this.points)
     }
 }

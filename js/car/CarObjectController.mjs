@@ -19,15 +19,15 @@ CarAction.REVERSE = iota++;
 CarAction.TURN_RIGHT = iota++;
 CarAction.BRAKE = iota++;
 
-export const LERP_DELTA = 1e-3;
-export const LERP_T = 5e-1;
+export const LERP_EPSILON = 1e-3;
+// export const LERP_T = 5e-1;
 
 class Direction
 {
-    constructor(vertical, horizontal) 
+    constructor() 
     {
-        this.vertical = vertical | 0;
-        this.horizontal = horizontal | 0;
+        this.vertical = 0.0;
+        this.horizontal = 0.0;
     }
 
     toString()
@@ -56,9 +56,9 @@ class Action
 
 const CarObjectKeyMapping = {};
 CarObjectKeyMapping[CarAction.THROTTLE]   = ['KeyW', 'ArrowUp'];
-CarObjectKeyMapping[CarAction.TURN_LEFT]  = ['KeyA', 'ArrowLeft']
 CarObjectKeyMapping[CarAction.REVERSE]    = ['KeyS', 'ArrowDown']
 CarObjectKeyMapping[CarAction.TURN_RIGHT] = ['KeyD', 'ArrowRight']
+CarObjectKeyMapping[CarAction.TURN_LEFT]  = ['KeyA', 'ArrowLeft']
 CarObjectKeyMapping[CarAction.BRAKE]      = ['Space']
 
 export class CarObjectController extends GameObjectController
@@ -86,60 +86,24 @@ export class CarObjectController extends GameObjectController
             if (throttle) 
             {
                 this.actions.keyPressed[CarAction.THROTTLE] = true;
-
-                if (Math.abs(this.direction.horizontal - DirectionState.POSITIVE) > LERP_DELTA)
-                {
-                    this.direction.horizontal = MathFunction.lerp(this.direction.horizontal, DirectionState.POSITIVE, LERP_T);
-                }
-                else
-                {
-                    this.direction.horizontal = DirectionState.POSITIVE;
-                }
             }
 
             const reverse = CarObjectKeyMapping[CarAction.REVERSE].find(key => key === keyCode)
             if (reverse) 
             {
                 this.actions.keyPressed[CarAction.REVERSE] = true;
-                
-                if (Math.abs(this.direction.horizontal - DirectionState.NEGATIVE) > LERP_DELTA)
-                {
-                    this.direction.horizontal = MathFunction.lerp(this.direction.horizontal, DirectionState.NEGATIVE, LERP_T);
-                }
-                else
-                {
-                    this.direction.horizontal = DirectionState.NEGATIVE;
-                }
+            }
+
+            const turnRight = CarObjectKeyMapping[CarAction.TURN_RIGHT].find(key => key === keyCode)
+            if (turnRight) 
+            {
+                this.actions.keyPressed[CarAction.TURN_RIGHT] = true;
             }
 
             const turnLeft = CarObjectKeyMapping[CarAction.TURN_LEFT].find(key => key === keyCode)
             if (turnLeft) 
             {
                 this.actions.keyPressed[CarAction.TURN_LEFT] = true;
-
-                if (Math.abs(this.direction.vertical - DirectionState.NEGATIVE) > LERP_DELTA)
-                {
-                    this.direction.vertical = MathFunction.lerp(this.direction.vertical, DirectionState.NEGATIVE, LERP_T);
-                }
-                else
-                {
-                    this.direction.vertical = DirectionState.NEGATIVE;
-                }
-            }
-        
-            const turnRight = CarObjectKeyMapping[CarAction.TURN_RIGHT].find(key => key === keyCode)
-            if (turnRight) 
-            {
-                this.actions.keyPressed[CarAction.TURN_RIGHT] = true;
-
-                if (Math.abs(this.direction.vertical - DirectionState.POSITIVE) > LERP_DELTA)
-                {
-                    this.direction.vertical = MathFunction.lerp(this.direction.vertical, DirectionState.POSITIVE, LERP_T);
-                }
-                else
-                {
-                    this.direction.vertical = DirectionState.POSITIVE;
-                }
             }
         };
         this.#keyUp = event => {
@@ -157,22 +121,21 @@ export class CarObjectController extends GameObjectController
                 this.actions.keyPressed[CarAction.REVERSE] = false;
             }
 
-            const turnLeft = CarObjectKeyMapping[CarAction.TURN_LEFT].find(key => key === keyCode)
-            if (turnLeft) 
-            {
-                this.actions.keyPressed[CarAction.TURN_LEFT] = false;
-            }
-        
             const turnRight = CarObjectKeyMapping[CarAction.TURN_RIGHT].find(key => key === keyCode)
             if (turnRight) 
             {
                 this.actions.keyPressed[CarAction.TURN_RIGHT] = false;
             }
+
+            const turnLeft = CarObjectKeyMapping[CarAction.TURN_LEFT].find(key => key === keyCode)
+            if (turnLeft) 
+            {
+                this.actions.keyPressed[CarAction.TURN_LEFT] = false;
+            }
         };
 
         this.#debugWidget = new DebugInfo(this, ['direction', 'actions'], new Rectangle(10, 220, 275, 200));
     }
-
 
     set keyDown(value)
     {
@@ -207,7 +170,6 @@ export class CarObjectController extends GameObjectController
     set direction(value)
     {
         this.#direction = value;
-        this.#debugWidget.update();
     }
 
     get actions()
@@ -218,7 +180,6 @@ export class CarObjectController extends GameObjectController
     set actions(value)
     {
         this.#actions = value;
-        this.#debugWidget.update();
     }
 
     connect()
@@ -240,20 +201,41 @@ export class CarObjectController extends GameObjectController
         const direction = this.direction;
         const actions = this.actions;
 
-        if ((!actions.keyPressed[CarAction.THROTTLE] && !actions.keyPressed[CarAction.REVERSE]) && 
-             Math.abs(direction.horizontal - DirectionState.ZERO) > LERP_DELTA)
+        const controller = this.controller;
+            
+        if (controller)
         {
-            direction.horizontal = MathFunction.lerp(direction.horizontal, DirectionState.ZERO, 2.0*LERP_T);
+            controller.update(dt);
         }
 
-        if ((!actions.keyPressed[CarAction.TURN_LEFT] && !actions.keyPressed[CarAction.TURN_RIGHT]) && 
-             Math.abs(direction.vertical - DirectionState.ZERO) > LERP_DELTA)
+        if (actions.keyPressed[CarAction.THROTTLE] || actions.keyPressed[CarAction.REVERSE])
         {
-            direction.vertical = MathFunction.lerp(direction.vertical, DirectionState.ZERO,  2.0*LERP_T);
+            const bound = 1 * actions.keyPressed[CarAction.THROTTLE] - 1 * actions.keyPressed[CarAction.REVERSE] >= 0 ? DirectionState.POSITIVE : DirectionState.NEGATIVE
+            this.direction.horizontal = Math.abs(this.direction.horizontal - bound) > LERP_EPSILON ? MathFunction.lerp(this.direction.horizontal, bound, dt) : bound;
+        }
+        else
+        {
+            if (Math.abs(direction.horizontal - DirectionState.ZERO) > LERP_EPSILON)
+            {
+                direction.horizontal = MathFunction.lerp(direction.horizontal, DirectionState.ZERO, dt);
+            }
         }
 
-        direction.horizontal = Math.abs(direction.horizontal) < LERP_DELTA ? 0 : direction.horizontal;
-        direction.vertical   = Math.abs(direction.vertical)   < LERP_DELTA ? 0 : direction.vertical;
+        if (actions.keyPressed[CarAction.TURN_RIGHT] || actions.keyPressed[CarAction.TURN_LEFT])
+        {
+            const bound = 1 * actions.keyPressed[CarAction.TURN_RIGHT] - 1 * actions.keyPressed[CarAction.TURN_LEFT] >= 0 ? DirectionState.POSITIVE : DirectionState.NEGATIVE
+            this.direction.vertical = Math.abs(this.direction.vertical - bound) > LERP_EPSILON ? MathFunction.lerp(this.direction.vertical, bound, dt) : bound;
+        }
+        else
+        {
+            if (Math.abs(direction.vertical - DirectionState.ZERO) > LERP_EPSILON)
+            {
+                direction.vertical = MathFunction.lerp(direction.vertical, DirectionState.ZERO,  dt);
+            }
+        }
+
+        direction.horizontal = Math.abs(direction.horizontal) > LERP_EPSILON ? direction.horizontal : 0;
+        direction.vertical   = Math.abs(direction.vertical)   > LERP_EPSILON ? direction.vertical : 0;
 
         this.#debugWidget.update();
     }

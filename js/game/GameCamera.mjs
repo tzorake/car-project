@@ -1,40 +1,35 @@
 import { DebugInfo } from "../debug/DebugInfo.mjs";
 import { Rectangle } from "../math/Rectangle.mjs";
 import { Vector2D } from "../math/Vector2D.mjs";
-import { GameUtils } from "./GameUtils.mjs";
+import { GameCameraController } from "./GameCameraController.mjs";
+import { GameObject } from "./GameObject.mjs";
 
 let iota = 0;
 export const GameCameraMode = {};
 GameCameraMode.FIXED = iota++;
 GameCameraMode.FOLLOW = iota++;
 
-export class GameCamera
+iota = 0;
+export const GameCameraFocusMode = {};
+GameCameraFocusMode.DISABLED = iota++;
+GameCameraFocusMode.ENABLED = iota++;
+
+export class GameCamera extends GameObject
 {
-    #position;
-    #scale;
-    #mode = GameCameraMode.FIXED;
+    #mode;
     #target = null;
 
     #debugWidget = null;
 
-    constructor()
+    constructor(x, y, length, width, mode = GameCameraMode.FIXED)
     {
-        const canvas = GameUtils.CANVAS;
-        const scale = GameUtils.SCALE;
+        super(x, y, length, width);
         
-        this.#position = new Vector2D(0.0, 0.0);
-        this.#scale = new Vector2D(canvas.width / scale, canvas.height / scale);
+        this.mode = mode;
+
+        this.controller = new GameCameraController(this);
+        this.controller.connect();
         this.#debugWidget = new DebugInfo(this, ['position', 'offset', 'mode'], new Rectangle(10, 430, 275, 200));
-    }
-
-    get position()
-    {
-        return this.#position;
-    }
-
-    set position(value)
-    {
-        this.#position = value;
     }
 
     get target()
@@ -45,11 +40,6 @@ export class GameCamera
     set target(value)
     {
         this.#target = value;
-    }
-
-    get scale()
-    {
-        return this.#scale;
     }
 
     get mode()
@@ -72,6 +62,13 @@ export class GameCamera
 
     update(dt)
     {
+        const controller = this.controller;
+
+        if (controller)
+        {
+            controller.update(dt);
+        }
+
         switch (this.mode)
         {
             case GameCameraMode.FIXED:

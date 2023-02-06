@@ -12,8 +12,11 @@ export class GameObject
 
     #world;
 
-    #renderer;
-    #controller;
+    #renderer = null;
+    #controller = null;
+
+    #properties = {};
+    // #focusable = false;
 
     constructor(x, y, width, height)
     {
@@ -21,9 +24,6 @@ export class GameObject
         this.#position     = new Vector2D(x, y);          // position
         this.#scale        = new Vector2D(width, height); // width and height
         this.#velocity     = new Vector2D(0.0, 0.0);      // velocity
-
-        this.#renderer   = null;                          // renderer
-        this.#controller = null;                          // controller
     }
 
     get position() 
@@ -131,25 +131,21 @@ export class GameObject
         throw new Error('GameObject.update(dt) : The method is not implemented yet!');
     }
 
-    render(dt, offset)
+    render(dt)
     {
         const renderer = this.renderer;
 
-        if (!TypeChecker.isGameObjectRenderer(renderer))
+        if (renderer)
         {
-            throw new Error('GameObject.render() : `renderer`  has to be `isGameObjectRenderer` type!');
+            renderer.render(dt);
         }
-
-        renderer.render(dt, offset);
     }
 
     vertices() 
     {
-        const center = this.position;
         const heading = this.heading;
         const scale = this.scale;
         const angle = heading.angle;
-        const [x, y] = [center.x, center.y];
         const [width, height] = [scale.x, scale.y]
         const vertices = [
             new Vector2D(
@@ -171,5 +167,25 @@ export class GameObject
         ];
         
         return vertices.map(v => v.rotated(angle));
+    }
+
+    // get focusable()
+    // {
+    //     return this.#focusable;
+    // }
+
+    // set focusable(value)
+    // {
+    //     this.#focusable = value;
+    // }
+
+    getProperty(key)
+    {
+        return this.#properties[key];
+    }
+
+    setProperty(key, value)
+    {
+        this.#properties[key] = value;
     }
 }

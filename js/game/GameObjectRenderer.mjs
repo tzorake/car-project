@@ -21,11 +21,11 @@ export class GameObjectRenderer
         }
 
         const context = GameUtils.CONTEXT;
-        const scaleFactor = GameUtils.SCALE;
-        const position = gameObject.position.add(offset).multiplyScalar(scaleFactor);
+        const scale = GameUtils.SCALE;
+        const position = gameObject.position.add(offset).multiplyScalar(scale);
         const heading = gameObject.heading;
 
-        const vertices = gameObject.vertices().map(item => item.multiplyScalar(scaleFactor).add(position));
+        const vertices = gameObject.vertices().map(item => item.multiplyScalar(scale).add(position));
         const object = new Path2D(`M ${vertices[0].x} ${vertices[0].y} 
                                    L ${vertices[1].x} ${vertices[1].y} 
                                    L ${vertices[2].x} ${vertices[2].y} 
@@ -34,10 +34,10 @@ export class GameObjectRenderer
         context.strokeStyle = 'rgba(0, 0, 0, 1.0)';
         context.fill(object);
 
-        const xAxis = heading.multiplyScalar(scaleFactor*4);
+        const xAxis = heading.multiplyScalar(scale*4);
         const xEnd = position.add(xAxis);
 
-        const yAxis = heading.rotated(Math.PI/2).multiplyScalar(scaleFactor*4);
+        const yAxis = heading.rotated(Math.PI/2).multiplyScalar(scale*4);
         const yEnd = position.add(yAxis);
 
         context.lineWidth = 0.5;

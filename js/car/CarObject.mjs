@@ -30,11 +30,18 @@ export class CarObject extends GameObject
         this.drag = 0.98
         this.steerAngle = Math.PI/20;
         this.traction = 0.1;
+
+        this.setProperty('focusable', true);
     }
 
     update(dt)
     {
         const controller = this.controller;
+
+        if (controller)
+        {
+            controller.update(dt);
+        }
         
         const direction = controller.direction;
         const actions = controller.actions;

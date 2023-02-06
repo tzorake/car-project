@@ -3,24 +3,31 @@ import { GameUtils } from "./GameUtils.mjs";
 
 export class GameWorld
 {
-    #objects
+    #objects;
 
     constructor(objects)
     {
-        this.#objects = objects.slice();
-        this.camera = new GameCamera();
-        this.camera.mode = GameCameraMode.FOLLOW;
-        this.camera.target =this.#objects[1];
-
+        this.objects = objects;
         this.objects.forEach(object => {
             object.world = this;
         });
-
     }
 
     get objects()
     {
         return this.#objects;
+    }
+
+    set objects(value)
+    {
+        this.#objects = value;
+    }
+
+    get camera()
+    {
+        const camera = this.objects.filter(item => item instanceof GameCamera)[0];
+
+        return camera
     }
 
     appendObject(object)
@@ -32,14 +39,7 @@ export class GameWorld
     {
         const objects = this.objects;
         objects.forEach(object => {
-
-            const controller = object.controller;
             const camera = this.camera;
-
-            if (controller)
-            {
-                controller.update();
-            }
 
             if (camera)
             {

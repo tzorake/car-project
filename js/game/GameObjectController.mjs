@@ -1,5 +1,3 @@
-import { TypeChecker } from "../math/TypeChecker.mjs";
-
 export class GameObjectController
 {
     #gameObject;
@@ -9,12 +7,12 @@ export class GameObjectController
         // https://stephendoddtech.com/blog/game-design/keyboard-input-player-controller-2d
         // https://stephendoddtech.com/blog/game-design/keyboard-event-game-input-map
 
-        if (!TypeChecker.isGameObject(gameObject))
-        {
-            throw new Error('GameObjectController.constructor(gameObject) : Passed object has to be inherited from `GameObject`!');
-        }
-
         this.#gameObject = gameObject;
+    }
+
+    get gameObject()
+    {
+        return this.#gameObject;
     }
 
     connect()
