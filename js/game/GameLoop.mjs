@@ -1,43 +1,9 @@
 import { TypeChecker } from "../math/TypeChecker.mjs";
+import { GameMenu } from "../menu/GameMenu.mjs";
 import { GameUtils } from "./GameUtils.mjs";
-
-const SECOND_TO_MILLISECONDS = 1000;
 
 export class GameLoop
 {
-    #startTimeStamp = null;
-    #previousTimeStamp = null;
-    #done = false;
-
-    #world = null;
-
-    #step = function() 
-    {
-        const step = function(timestamp) 
-        {
-            if (this.startTimeStamp === null) 
-            {
-                this.startTimeStamp = timestamp;
-            }
-
-            if (this.previousTimeStamp !== null) 
-            {
-                const dt = (timestamp - this.previousTimeStamp) / SECOND_TO_MILLISECONDS;
-
-                this.world.update(dt);
-                this.world.render(dt);
-            }
-
-            this.previousTimeStamp = timestamp;
-
-            if (!this.done) 
-            {
-                window.requestAnimationFrame(step);
-            }
-        }.bind(this);
-
-        window.requestAnimationFrame(step);
-    }.bind(this);
 
     constructor(world) 
     {
@@ -46,54 +12,30 @@ export class GameLoop
             throw new Error('GameLoop.constructor(world) : `world` has to be `GameWorld` type!');
         }
 
-        this.#world = world;
+        this.startTimeStamp = null;
+        this.previousTimeStamp = null;
+        this.done = false;
+    
+        this.world = world;
+        this.menu = new GameMenu();
         
         const controller = GameUtils.CONTROLLER;
         controller.connect();
+
+        this.menuConnected = false;
+        this.gameConnected = false;
     }
 
-    get startTimeStamp() 
+    launchMenu()
     {
-        return this.#startTimeStamp;
-    }
-
-    set startTimeStamp(value) 
-    {
-        this.#startTimeStamp = value;
-    }
-
-    get previousTimeStamp() 
-    {
-        return this.#previousTimeStamp;
-    }
-
-    set previousTimeStamp(value) 
-    {
-        this.#previousTimeStamp = value;
-    }
-
-    get done() 
-    {
-        return this.#done;
-    }
-
-    set done(value) 
-    {
-        this.#done = value;
-    }
-
-    get world()
-    {
-        return this.#world;
-    }
-
-    start() 
-    {
-        if (!this.world)
+        if (this.gameConnected)
         {
-            throw new Error('GameLoop.start() : `world` has to be set before using the method!');
+            window.cancelAnimationFrame(this.request);
+            this.gameConnected = false;
         }
 
-        window.requestAnimationFrame(this.#step);
+        this.menu.connect();
+        this.request = window.requestAnimationFrame(this.menu.step);
+        this.menuConnected = true;
     }
 };
