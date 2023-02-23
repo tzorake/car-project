@@ -1,4 +1,3 @@
-import { TypeChecker } from "../math/TypeChecker.mjs";
 import { Vector2D } from "../math/Vector2D.mjs";
 
 export class GameObject
@@ -168,16 +167,6 @@ export class GameObject
         
         return vertices.map(v => v.rotated(angle));
     }
-
-    // get focusable()
-    // {
-    //     return this.#focusable;
-    // }
-
-    // set focusable(value)
-    // {
-    //     this.#focusable = value;
-    // }
 
     getProperty(key)
     {

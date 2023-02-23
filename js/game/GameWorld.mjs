@@ -5,8 +5,10 @@ export class GameWorld
 {
     #objects;
 
-    constructor(objects)
+    constructor({ objects, parent })
     {
+        this.parent = parent;
+
         this.objects = objects;
         this.objects.forEach(object => {
             object.world = this;
@@ -25,9 +27,8 @@ export class GameWorld
 
     get camera()
     {
-        const camera = this.objects.filter(item => item instanceof GameCamera)[0];
-
-        return camera
+        const cameras = this.objects.filter(item => item instanceof GameCamera);
+        return cameras ? cameras[0] : null;
     }
 
     appendObject(object)
@@ -59,5 +60,17 @@ export class GameWorld
         objects.forEach(object => {
             object.render(dt);
         });
+    }
+
+    connect()
+    {
+        const connactable = this.objects.filter(object => !!object.connect);
+        connactable.forEach(object => object.connect());
+    }
+
+    disconnect()
+    {
+        const disconnactable = this.objects.filter(object => !!object.disconnect);
+        disconnactable.forEach(object => object.disconnect());
     }
 };

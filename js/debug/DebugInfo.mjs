@@ -1,3 +1,4 @@
+import { GameUtils } from "../game/GameUtils.mjs";
 import { MathFunction } from "../math/MathFunction.mjs";
 
 export class DebugInfo
@@ -14,8 +15,11 @@ export class DebugInfo
         this.#props = props;
         this.#id = MathFunction.uuid();
 
-        this.widget(rect.x, rect.y, rect.width, rect.height);
-        this.draggable();
+        if (GameUtils.DEBUG)
+        {
+            this.widget(rect.x, rect.y, rect.width, rect.height);
+            this.draggable();
+        }
     }
 
     draggable()
@@ -112,9 +116,12 @@ export class DebugInfo
 
     update()
     {
-        const text = document.querySelectorAll(`[id="${this.#id}"] .content .text`);
-        this.#props.forEach((prop, index) => {
-            text[index].textContent = `${prop} : ${this.#gameObject[prop]}`;
-        });
+        if (GameUtils.DEBUG)
+        {
+            const text = document.querySelectorAll(`[id="${this.#id}"] .content .text`);
+            this.#props.forEach((prop, index) => {
+                text[index].textContent = `${prop} : ${this.#gameObject[prop]}`;
+            });
+        }
     }
 };

@@ -78,7 +78,10 @@ export class GameCameraController extends GameObjectController
             }
         };
 
-        this.#debugWidget = new DebugInfo(this, ['actions', 'state'], new Rectangle(10, 640, 275, 200));
+        if (GameUtils.DEBUG)
+        {
+            this.#debugWidget = new DebugInfo(this, ['actions', 'state'], new Rectangle(10, 640, 275, 200));
+        }
     }
 
     connect()
@@ -129,7 +132,10 @@ export class GameCameraController extends GameObjectController
             state.time += dt;
         }
 
-        this.#debugWidget.update();
+        if (GameUtils.DEBUG)
+        {
+            this.#debugWidget.update();
+        }
     }
 
     get actions()

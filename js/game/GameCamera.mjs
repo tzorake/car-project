@@ -29,6 +29,7 @@ export class GameCamera extends GameObject
 
         this.controller = new GameCameraController(this);
         this.controller.connect();
+        
         this.#debugWidget = new DebugInfo(this, ['position', 'offset', 'mode'], new Rectangle(10, 430, 275, 200));
     }
 

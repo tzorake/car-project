@@ -4,7 +4,6 @@ import { DisplayMode } from "./DisplayMode.mjs";
 import { TrackController } from "./TrackController.mjs";
 import { SplineType, TrackCurve } from "./TrackCurve.mjs";
 import { TrackRenderer } from "./TrackRenderer.mjs";
-import { TrackSegment } from "./TrackSegment.mjs";
 
 class TrackCurveSet
 {
@@ -24,7 +23,7 @@ class TrackCurveSet
     {
         this.center.chain();
 
-        this.trackBorders(5);
+        this.trackBorders(10);
 
         this.left.chain();
         this.right.chain();
@@ -63,7 +62,7 @@ export class Track extends GameObject
         );
         this.renderer = new TrackRenderer(this);
         this.controller = new TrackController(this);
-        this.controller.connect();
+        // this.controller.connect();
     }
 
     update(dt)
@@ -78,5 +77,15 @@ export class Track extends GameObject
         if (this.points.length < 4) return;
 
         this.curves.chain();
+    }
+
+    connect()
+    {
+        this.controller.connect();
+    }
+
+    disconnect()
+    {
+        this.controller.disconnect();
     }
 }

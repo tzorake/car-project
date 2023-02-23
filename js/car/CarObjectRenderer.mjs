@@ -1,8 +1,5 @@
 import { GameObjectRenderer } from "../game/GameObjectRenderer.mjs";
 import { GameUtils } from "../game/GameUtils.mjs";
-import { TypeChecker } from "../math/TypeChecker.mjs";
-import { Vector2D } from "../math/Vector2D.mjs";
-import { CarCamera } from "./CarCamera.mjs";
 
 export class CarObjectRenderer extends GameObjectRenderer
 {

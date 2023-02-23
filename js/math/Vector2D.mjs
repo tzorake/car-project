@@ -1,5 +1,4 @@
 import { MathFunction } from "./MathFunction.mjs";
-import { TypeChecker } from "./TypeChecker.mjs";
 
 export class Vector2D 
 {
@@ -8,15 +7,8 @@ export class Vector2D
 
     constructor(x = 0.0, y = 0.0) 
     {
-        if (TypeChecker.isNumber(x) && TypeChecker.isNumber(y))
-        {
-            this.#x = x;
-            this.#y = y;
-        }
-        else
-        {
-            throw new Error('Vector2D.constructor(x, y) : Constructor arguments (`x` and `y`) must have `Number` type!');
-        }
+        this.#x = x;
+        this.#y = y;
     }
 
     get x() 
@@ -43,30 +35,20 @@ export class Vector2D
     {
         c = c == null ? c = new Vector2D(0.0, 0.0) : c;
 
-        if (TypeChecker.isNumber(theta) && TypeChecker.isVector2D(c))
-        {
-            return new Vector2D(
-                (this.x - c.x)*Math.cos(theta) - (this.y - c.y)*Math.sin(theta) + c.x,
-                (this.x - c.x)*Math.sin(theta) + (this.y - c.y)*Math.cos(theta) + c.y
-            );
-        }
-
-        throw new Error('Vector2D.rotated(theta, c) : First function argument must have `Number` type and second one must have `Vector2D` type!');
+        return new Vector2D(
+            (this.x - c.x)*Math.cos(theta) - (this.y - c.y)*Math.sin(theta) + c.x,
+            (this.x - c.x)*Math.sin(theta) + (this.y - c.y)*Math.cos(theta) + c.y
+        );
     }
 
     rotate(theta, c) 
     {
         c = c == null ? c = new Vector2D(0.0, 0.0) : c;
 
-        if (TypeChecker.isNumber(theta) && TypeChecker.isVector2D(c))
-        {
-            this.x = (this.x - c.x)*Math.cos(theta) - (this.y - c.y)*Math.sin(theta) + c.x;
-            this.y = (this.x - c.x)*Math.sin(theta) + (this.y - c.y)*Math.cos(theta) + c.y;
-            
-            return this;
-        }
-
-        throw new Error('Vector2D.rotate(theta, c) : First function argument must have `Number` type and second one must have `Vector2D` type!');
+        this.x = (this.x - c.x)*Math.cos(theta) - (this.y - c.y)*Math.sin(theta) + c.x;
+        this.y = (this.x - c.x)*Math.sin(theta) + (this.y - c.y)*Math.cos(theta) + c.y;
+        
+        return this;
     }
 
     magnitude()
@@ -88,51 +70,31 @@ export class Vector2D
 
     add(...other) 
     {
-        if (other.every(v => TypeChecker.isVector2D(v)))
-        {
-            return new Vector2D(
-                this.x + other.reduce((acc, item) => acc += item.x, 0.0), 
-                this.y + other.reduce((acc, item) => acc += item.y, 0.0)
-            );
-        }
-        
-        throw new Error('Vector2D.add(...other) : Each of function argument must have `Vector2D` type!');
+        return new Vector2D(
+            this.x + other.reduce((acc, item) => acc += item.x, 0.0), 
+            this.y + other.reduce((acc, item) => acc += item.y, 0.0)
+        );
     }
 
     sub(...other)
     {
-        if (other.every(v => TypeChecker.isVector2D(v)))
-        {
-            return new Vector2D(
-                this.x + other.reduce((acc, item) => acc -= item.x, 0.0), 
-                this.y + other.reduce((acc, item) => acc -= item.y, 0.0)
-            );
-        }
-        
-        throw new Error('Vector2D.sub(...other) : Each of function argument must have `Vector2D` type!');
+        return new Vector2D(
+            this.x + other.reduce((acc, item) => acc -= item.x, 0.0), 
+            this.y + other.reduce((acc, item) => acc -= item.y, 0.0)
+        );
     }
 
     dot(other) 
     {
-        if (TypeChecker.isVector2D(other)) 
-        {
-            return this.x*other.x + this.y*other.y;
-        }
-
-        throw new Error('Vector2D.multiply(other) : Function argument must have `Vector2D` type!');
+        return this.x*other.x + this.y*other.y;
     }
 
     multiplyScalar(scalar) 
     {
-        if (TypeChecker.isNumber(scalar))
-        {
-            return new Vector2D(
-                scalar*this.x, 
-                scalar*this.y
-            );
-        }
-
-        throw new Error('Vector2D.multiplyScalar(scalar) : Function argument should has `Number` type!');
+        return new Vector2D(
+            scalar*this.x, 
+            scalar*this.y
+        );
     }
 
     copy()

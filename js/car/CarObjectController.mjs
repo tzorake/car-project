@@ -138,22 +138,12 @@ export class CarObjectController extends GameObjectController
     }
 
     set keyDown(value)
-    {
-        if (!TypeChecker.isFunction(value))
-        {
-            throw new Error('GameObjectController.keyDown(value) : `keyDown` is not a function!');
-        }
-        
+    {        
         this.#keyDown = value;
     }
 
     set keyUp(value)
     {
-        if (!TypeChecker.isFunction(value))
-        {
-            throw new Error('GameObjectController.keyUp(value) : `keyUp` is not a function!');
-        }
-
         this.#keyUp = value;
     }
 

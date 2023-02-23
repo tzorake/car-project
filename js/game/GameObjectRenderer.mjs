@@ -1,5 +1,4 @@
 import { GameUtils } from "./GameUtils.mjs";
-import { TypeChecker } from "../math/TypeChecker.mjs";
 
 export class GameObjectRenderer
 {
@@ -14,11 +13,6 @@ export class GameObjectRenderer
         const world = gameObject.world;
         const camera = world.camera;
         const offset = camera.offset;
-
-        if (!TypeChecker.isGameObject(gameObject))
-        {
-            throw new Error('GameObjectRenderer.render(gameObject) : Passed object must be inherited from `GameObject`!');
-        }
 
         const context = GameUtils.CONTEXT;
         const scale = GameUtils.SCALE;
