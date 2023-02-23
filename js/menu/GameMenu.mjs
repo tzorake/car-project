@@ -7,35 +7,10 @@ import { GameMenuTransition, TransitionState } from "./GameMenuTransition.mjs";
 
 export class GameMenu
 {
-    #step = function() 
+    constructor({ parent })
     {
-        const step = function(timestamp) 
-        {
-            if (this.startTimeStamp === null) 
-            {
-                this.startTimeStamp = timestamp;
-            }
+        this.parent = parent;
 
-            if (this.previousTimeStamp != null && timestamp != null) 
-            {
-                const dt = (timestamp - this.previousTimeStamp) / GameUtils.SECOND_TO_MILLISECONDS;
-                this.update(dt);
-                this.render(dt);
-            }
-
-            this.previousTimeStamp = timestamp;
-
-            if (!this.done) 
-            {
-                window.requestAnimationFrame(step);
-            }
-        }.bind(this);
-
-        window.requestAnimationFrame(step);
-    }.bind(this);
-
-    constructor()
-    {
         const canvas = GameUtils.CANVAS;
         const width = canvas.width;
         const height = canvas.height;
@@ -53,17 +28,28 @@ export class GameMenu
                 mouseDown: function(event) {
                     const x  = Math.floor(this.cx - this.w/2);
                     const y = Math.floor(this.cy - this.h/2);
+                    const menu = this.parent;
+                    const loop = menu.parent;
+                    const transition = loop.transition;
                     if (within(event.x, event.y, x, y, x + this.w, y + this.h))
                     {
-                        if (this.parent.transition.state === TransitionState.DEFAULT || this.parent.transition.state === TransitionState.BACKWARD_ENDED)
+                        if (transition.state === TransitionState.DEFAULT || transition.state === TransitionState.BACKWARD_ENDED)
                         {
-                            this.parent.transition.setState(TransitionState.FORWARD_STARTED);
+                            menu.disconnect();
+
+                            transition.setState(TransitionState.FORWARD_STARTED, () => {
+                                // loop.world.connect();
+                                loop.worldConnected = true;
+                                transition.setState(TransitionState.BACKWARD_STARTED);
+                            });
                         }
-                        if (this.parent.transition.state === TransitionState.FORWARD_ENDED)
-                        {
-                            this.parent.transition.setState(TransitionState.BACKWARD_STARTED);
-                        }
+                        // if (transition.state === TransitionState.FORWARD_ENDED)
+                        // {
+                        //     transition.setState(TransitionState.BACKWARD_STARTED);
+                        // }
                     }
+                    
+                    
                 }
             },
             parent: this
@@ -104,8 +90,6 @@ export class GameMenu
             cx: width / 2 + GameMenuCard.SCALE.x, 
             cy: height / 2 + GameMenuCard.SCALE.y / 2 + GameMenuTab.SCALE.y / 2 + GameMenuTab.MARGIN.y
         });
-
-        this.transition = new GameMenuTransition();
     }
 
     connect()
@@ -120,14 +104,14 @@ export class GameMenu
         this.card1.disconnect();
         this.card2.disconnect();
         this.tabGroup1.disconnect();
+
+        this.parent.menuConnected = false;
     }
 
     update(dt)
     {
         this.card1.update(dt);
         this.card2.update(dt);
-
-        this.transition.update(dt);
     }
 
     render(dt)
@@ -140,19 +124,5 @@ export class GameMenu
         this.topTab1.render(dt);
         this.topTab2.render(dt);
         this.bottomTab1.render(dt);
-
-        this.transition.render(dt);
-
-        GameUtils.SAVE();
-        GameUtils.BEGIN_PATH();
-        GameUtils.FILL_STYLE('red');
-        GameUtils.CIRCLE(GameUtils.CANVAS.width/2, GameUtils.CANVAS.height/2, 2);
-        GameUtils.FILL();
-        GameUtils.RESTORE();
-    }
-
-    get step()
-    {
-        return this.#step;
     }
 };

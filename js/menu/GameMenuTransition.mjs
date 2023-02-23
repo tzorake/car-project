@@ -10,14 +10,17 @@ TransitionState.FORWARD_STARTED = iota++;
 TransitionState.FORWARD_ENDED = iota++;
 TransitionState.BACKWARD_STARTED = iota++;
 TransitionState.BACKWARD_ENDED = iota++;
+TransitionState.DELAY = iota++;
 
 // --->  *  <--- forward
 // <---  *  ---> backward
 
 export class GameMenuTransition
 {
-    constructor()
+    constructor({ parent })
     {
+        this.parent = parent;
+
         this.w = GameMenuTransition.SCALE.x / 2;
         this.h = GameMenuTransition.SCALE.y / 2;
 
@@ -25,6 +28,7 @@ export class GameMenuTransition
         this.duration = 1.0;
 
         this.state = TransitionState.BACKWARD_STARTED;
+        this.callback = null;
     }
 
     update(dt)
@@ -32,7 +36,7 @@ export class GameMenuTransition
         if(this.state === TransitionState.FORWARD_STARTED)
         {
             this.animation += dt;
-            this.animation = MathFunction.clamp(this.animation, 0.0, 1.0);
+            this.animation = MathFunction.clamp(this.animation, 0.0, this.duration);
 
             this.w = MathFunction.lerp(this.w, GameMenuTransition.SCALE.x / 2, this.animation / this.duration);
             this.h = MathFunction.lerp(this.h, GameMenuTransition.SCALE.y / 2, this.animation / this.duration);
@@ -40,17 +44,23 @@ export class GameMenuTransition
             this.w = MathFunction.clamp(this.w, 0.0, GameMenuTransition.SCALE.x / 2);
             this.h = MathFunction.clamp(this.h, 0.0, GameMenuTransition.SCALE.y / 2);
 
-            if (this.animation === 1.0)
+            if (this.animation === this.duration)
             {
                 this.state = TransitionState.FORWARD_ENDED;
                 this.animation = 0.0;
+
+                if (this.callback)
+                {
+                    this.callback();
+                    this.callback = null;
+                }
             }
         }
         
         if (this.state === TransitionState.BACKWARD_STARTED)
         {
             this.animation += dt;
-            this.animation = MathFunction.clamp(this.animation, 0.0, 1.0);
+            this.animation = MathFunction.clamp(this.animation, 0.0, this.duration);
 
             this.w = MathFunction.lerp(this.w, 0.0, this.animation / this.duration);
             this.h = MathFunction.lerp(this.h, 0.0, this.animation / this.duration);
@@ -58,10 +68,35 @@ export class GameMenuTransition
             this.w = MathFunction.clamp(this.w, 0.0, GameMenuTransition.SCALE.x / 2);
             this.h = MathFunction.clamp(this.h, 0.0, GameMenuTransition.SCALE.y / 2);
 
-            if (this.animation === 1.0)
+            if (this.animation === this.duration)
             {
                 this.state = TransitionState.BACKWARD_ENDED;
                 this.animation = 0.0;
+
+                if (this.callback)
+                {
+                    this.callback();
+                    this.callback = null;
+                }
+            }
+        }
+
+        if (this.state === TransitionState.DELAY)
+        {
+            this.animation += dt;
+
+            this.animation = MathFunction.clamp(this.animation, 0.0, this.duration);
+
+            if (this.animation === this.duration)
+            {
+                this.state = TransitionState.BACKWARD_ENDED;
+                this.animation = 0.0;
+
+                if (this.callback)
+                {
+                    this.callback();
+                    this.callback = null;
+                }
             }
         }
     }
@@ -89,17 +124,17 @@ export class GameMenuTransition
         });
     }
 
-    forward()
+    forward({ callback })
     {
-        this.setState(TransitionState.FORWARD_STARTED);
+        this.setState(TransitionState.FORWARD_STARTED, callback);
     }
 
-    backward()
+    backward({ callback })
     {
-        this.setState(TransitionState.BACKWARD_STARTED);
+        this.setState(TransitionState.BACKWARD_STARTED, callback);
     }
 
-    setState(state)
+    setState(state, callback)
     {
         switch (state)
         {
@@ -112,6 +147,7 @@ export class GameMenuTransition
                 if (this.state === TransitionState.DEFAULT || this.state === TransitionState.BACKWARD_ENDED)
                 {
                     this.state = state;
+                    this.callback = callback;
                 }
             } break;
             case TransitionState.FORWARD_ENDED:

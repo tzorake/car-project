@@ -8,6 +8,8 @@ export class GameMenuCard
 {
     constructor({ text, cx, cy, styles, callbacks, parent })
     {
+        this.parent = parent;
+
         this.cx = cx;
         this.cy = cy;
         this.w = GameMenuCard.SCALE.x;
@@ -20,7 +22,6 @@ export class GameMenuCard
         this.styles = styles;
         this.state = GameMenuElementState.DEFAULT;
         this.fontSize = GameMenuCard.FONT_SIZE;
-        this.parent = parent;
 
         if (callbacks)
         {
@@ -42,6 +43,7 @@ export class GameMenuCard
         {
             GameUtils.CONTROLLER.addCallback(EventListenerType.MOUSEMOVE, this.mouseMove);
         }
+
         if (this.mouseDown)
         {
             GameUtils.CONTROLLER.addCallback(EventListenerType.MOUSEDOWN, this.mouseDown);
@@ -54,21 +56,15 @@ export class GameMenuCard
         {
             GameUtils.CONTROLLER.removeCallback(EventListenerType.MOUSEMOVE, this.mouseMove);
         }
+
+        if (this.mouseDown)
+        {
+            GameUtils.CONTROLLER.removeCallback(EventListenerType.MOUSEDOWN, this.mouseDown);
+        }
     }
 
     update(dt)
     {
-        const scalar = 4.0;
-        this.w = this.state === GameMenuElementState.EXPANDING ? 
-            MathFunction.lerp(this.w, GameMenuCard.SCALE.x*GameMenuCard.SCALE_EXPANSION, scalar*dt):
-            MathFunction.lerp(this.w, GameMenuCard.SCALE.x, scalar*dt);
-        this.h = this.state === GameMenuElementState.EXPANDING ? 
-            MathFunction.lerp(this.h, GameMenuCard.SCALE.y*GameMenuCard.SCALE_EXPANSION, scalar*dt) :
-            MathFunction.lerp(this.h, GameMenuCard.SCALE.y, scalar*dt);
-        this.fontSize = this.state === GameMenuElementState.EXPANDING ?
-            MathFunction.lerp(this.fontSize, GameMenuCard.FONT_SIZE*GameMenuCard.SCALE_EXPANSION, scalar*dt) : 
-            MathFunction.lerp(this.fontSize, GameMenuCard.FONT_SIZE, scalar*dt);
-
         if (this.state === GameMenuElementState.EXPANDING)
         {
             this.animation += dt;
@@ -122,15 +118,9 @@ export class GameMenuCard
 
     get STYLE_1()
     {
-        const cx = this.cx;
-        const cy = this.cy;
-        const w = this.w;
-        const h = this.h;
-        const x  = Math.floor(cx - w/2);
-        const y = Math.floor(cy - h/2);
         return {
             fillStyle: 'rgba(0, 0, 0, 0.75)',
-            strokeStyle: 'rgba(0, 0, 0, 0.0)',//GameUtils.CREATE_LINEAR_GRADIENT(x, y, x, y + h, [{offset: 0.0, color: '#DADCE3'}, {offset: 0.5, color: '#CED0D6'}, {offset: 1.0, color: '#B0B2B8'}]),
+            strokeStyle: 'rgba(0, 0, 0, 0.0)',
             lineWidth: 2
         };
     }

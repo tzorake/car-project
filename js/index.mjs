@@ -8,7 +8,5 @@ const canvas = GameUtils.CANVAS;
 const scale = GameUtils.SCALE;
 
 const gameObjects = [];
-const gameWorld = new GameWorld(gameObjects);
-const gameLoop = new GameLoop(gameWorld);
-
-gameLoop.launchMenu();
+const gameLoop = new GameLoop(gameObjects);
+gameLoop.run();
