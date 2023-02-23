@@ -5,10 +5,8 @@ export class GameWorld
 {
     #objects;
 
-    constructor({ objects, parent })
+    constructor(objects)
     {
-        this.parent = parent;
-
         this.objects = objects;
         this.objects.forEach(object => {
             object.world = this;

@@ -1,10 +1,16 @@
-import { GameMenu } from "../menu/GameMenu.mjs";
-import { GameMenuTransition } from "../menu/GameMenuTransition.mjs";
+import { TypeChecker } from "../math/TypeChecker.mjs";
 import { GameUtils } from "./GameUtils.mjs";
-import { GameWorld } from "./GameWorld.mjs";
+
+const SECOND_TO_MILLISECONDS = 1000;
 
 export class GameLoop
 {
+    #startTimeStamp = null;
+    #previousTimeStamp = null;
+    #done = false;
+
+    #world = null;
+
     #step = function() 
     {
         const step = function(timestamp) 
@@ -14,24 +20,12 @@ export class GameLoop
                 this.startTimeStamp = timestamp;
             }
 
-            if (this.previousTimeStamp != null && timestamp != null) 
+            if (this.previousTimeStamp !== null) 
             {
-                const dt = (timestamp - this.previousTimeStamp) / GameUtils.SECOND_TO_MILLISECONDS;
+                const dt = (timestamp - this.previousTimeStamp) / SECOND_TO_MILLISECONDS;
 
-                if (this.menuConnected)
-                {
-                    this.menu.update(dt);
-                    this.menu.render(dt);
-                }
-
-                if (this.worldConnected)
-                {
-                    this.world.update(dt);
-                    this.world.render(dt);
-                }
-
-                this.transition.update(dt);
-                this.transition.render(dt);
+                this.world.update(dt);
+                this.world.render(dt);
             }
 
             this.previousTimeStamp = timestamp;
@@ -45,27 +39,61 @@ export class GameLoop
         window.requestAnimationFrame(step);
     }.bind(this);
 
-    constructor(objects) 
+    constructor(world) 
     {
-        this.startTimeStamp = null;
-        this.previousTimeStamp = null;
-        this.done = false;
+        if (!TypeChecker.isGameWorld(world))
+        {
+            throw new Error('GameLoop.constructor(world) : `world` has to be `GameWorld` type!');
+        }
 
-        this.menu = new GameMenu({ parent: this });
-        this.world = new GameWorld({ objects: objects, parent: this });
-        this.transition = new GameMenuTransition({ parent: this });
-
+        this.#world = world;
+        
         const controller = GameUtils.CONTROLLER;
         controller.connect();
-
-        this.menu.connect();
-        this.menuConnected = true;
-
-        this.worldConnected = false;
     }
 
-    run()
+    get startTimeStamp() 
     {
+        return this.#startTimeStamp;
+    }
+
+    set startTimeStamp(value) 
+    {
+        this.#startTimeStamp = value;
+    }
+
+    get previousTimeStamp() 
+    {
+        return this.#previousTimeStamp;
+    }
+
+    set previousTimeStamp(value) 
+    {
+        this.#previousTimeStamp = value;
+    }
+
+    get done() 
+    {
+        return this.#done;
+    }
+
+    set done(value) 
+    {
+        this.#done = value;
+    }
+
+    get world()
+    {
+        return this.#world;
+    }
+
+    start() 
+    {
+        if (!this.world)
+        {
+            throw new Error('GameLoop.start() : `world` has to be set before using the method!');
+        }
+
         window.requestAnimationFrame(this.#step);
     }
 };
