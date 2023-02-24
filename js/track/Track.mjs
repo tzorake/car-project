@@ -3,6 +3,7 @@ import { Vector2D } from "../math/Vector2D.mjs";
 import { DisplayMode } from "./DisplayMode.mjs";
 import { TrackController } from "./TrackController.mjs";
 import { SplineType, TrackCurve } from "./TrackCurve.mjs";
+import { TrackHighlighting } from "./TrackHighlighting.mjs";
 import { TrackRenderer } from "./TrackRenderer.mjs";
 
 class TrackCurveSet
@@ -90,8 +91,11 @@ export class Track extends GameObject
             new TrackCurve(this.points, SplineType.CatmullRomSpline, 100, DisplayMode.Visible), 
             null
         );
+        this.highlighter = new TrackHighlighting({ parent: this });
         this.renderer = new TrackRenderer(this);
         this.controller = new TrackController(this);
+
+        
     }
 
     update(dt)

@@ -5,11 +5,16 @@ import { DebugInfo } from "../debug/DebugInfo.mjs";
 import { GameObject } from "../game/GameObject.mjs";
 import { Vector2D } from "../math/Vector2D.mjs";
 
+let iota = 0;
+export const CarObjectType = {};
+CarObjectType.PLAYER = iota++;
+CarObjectType.ENEMY = iota++;
+
 export class CarObject extends GameObject
 {
     #debugWidget = null;
     
-    constructor(x, y, length, width)
+    constructor(x, y, length, width, type = CarObjectType.ENEMY)
     {
         super(x, y, length, width);
 
@@ -32,6 +37,7 @@ export class CarObject extends GameObject
         this.traction = 0.1;
 
         this.setProperty('focusable', true);
+        this.type = type;
     }
 
     update(dt)

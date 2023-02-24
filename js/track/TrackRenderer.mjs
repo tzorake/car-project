@@ -88,5 +88,10 @@ export class TrackRenderer extends GameObjectRenderer
 
         renderCurves();
         renderPoints();
+
+        if (world && world.player)
+        {
+            this.gameObject.highlighter.renderer.render(dt);
+        }
     }
 }

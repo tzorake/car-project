@@ -1,4 +1,5 @@
-import { GameCamera, GameCameraMode } from "./GameCamera.mjs";
+import { CarObjectType } from "../car/CarObject.mjs";
+import { GameCamera } from "./GameCamera.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 
 export class GameWorld
@@ -31,8 +32,15 @@ export class GameWorld
         return cameras ? cameras[0] : null;
     }
 
-    appendObject(object)
+    get player()
     {
+        const players = this.objects.filter(player => player.type === CarObjectType.PLAYER);
+        return players ? players[0] : null;
+    }
+
+    append(object)
+    {
+        object.world = this;
         this.objects.push(object);
     }
 
