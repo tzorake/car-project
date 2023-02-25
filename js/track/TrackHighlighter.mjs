@@ -1,11 +1,12 @@
-import { TrackHighlightingRenderer } from "./TrackHighlightingRenderer.mjs";
+import { TrackHighlighterRenderer } from "./TrackHighlighterRenderer.mjs";
 
-export class TrackHighlighting
+export class TrackHighlighter
 {
     constructor({ parent })
     {
         this.parent = parent;
-        this.renderer = new TrackHighlightingRenderer(this);
+
+        this.renderer = new TrackHighlighterRenderer({ parent: this});
     }
     
     update(dt)

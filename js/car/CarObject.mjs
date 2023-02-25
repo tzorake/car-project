@@ -14,21 +14,11 @@ export class CarObject extends GameObject
 {
     #debugWidget = null;
     
-    constructor(x, y, length, width, type = CarObjectType.ENEMY)
+    constructor({ x, y, width, height, type })
     {
-        super(x, y, length, width);
+        super({ x, y, width, height });
 
-        this.renderer = new CarObjectRenderer(this);
-        this.controller = new CarObjectController(this);
-        this.controller.connect();
-     
-        this.#debugWidget = new DebugInfo(this, ['position', 'scale', 'velocity', 'heading', 'angle'], new Rectangle(10, 10, 275, 200));
-
-        // this.maxVelocity = 50.0
-        // this.maxSpeed = 25.0;
-        // this.drag = 0.98
-        // this.steerAngle = Math.PI/20;
-        // this.traction = 10.0;
+        this.type = type ? type : CarObjectType.ENEMY;
         
         this.maxVelocity = 50.0
         this.maxSpeed = 25.0;
@@ -37,7 +27,15 @@ export class CarObject extends GameObject
         this.traction = 0.1;
 
         this.setProperty('focusable', true);
-        this.type = type;
+
+        this.renderer = new CarObjectRenderer({ parent: this });
+        this.controller = new CarObjectController({ parent: this });
+     
+        this.#debugWidget = new DebugInfo({
+            props: ['position', 'scale', 'velocity', 'heading', 'angle'], 
+            rect: new Rectangle(10, 10, 275, 200), 
+            parent: this
+        });
     }
 
     update(dt)
@@ -64,5 +62,15 @@ export class CarObject extends GameObject
         this.velocity = Vector2D.lerp(this.velocity.normalized(), this.heading, this.traction*dt).multiplyScalar(this.velocity.magnitude())
 
         this.#debugWidget.update();
+    }
+
+    connect()
+    {
+        this.controller.connect();
+    }
+
+    disconnect()
+    {
+        this.controller.disconnect();
     }
 };

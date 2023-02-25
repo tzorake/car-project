@@ -118,9 +118,16 @@ export class GameUtils
         CONTEXT.restore();
     }
 
-    static FILL()
-    {
-        CONTEXT.fill();
+    static FILL(path)
+    {   
+        if (path)
+        {
+            CONTEXT.fill(path);
+        }
+        else
+        {
+            CONTEXT.fill();
+        }
     }
 
     static STROKE()

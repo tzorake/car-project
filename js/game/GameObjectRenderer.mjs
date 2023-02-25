@@ -2,31 +2,31 @@ import { GameUtils } from "./GameUtils.mjs";
 
 export class GameObjectRenderer
 {
-    constructor(gameObject)
+    constructor({ parent })
     {
-        this.gameObject = gameObject;
+        this.parent = parent;
     }
 
     render(dt)
     {
-        const gameObject = this.gameObject;
+        const gameObject = this.parent;
         const world = gameObject.world;
-        const camera = world.camera;
+        const player = world.player;
+        const camera = player.camera;
         const offset = camera.offset;
 
-        const context = GameUtils.CONTEXT;
         const scale = GameUtils.SCALE;
         const position = gameObject.position.add(offset).multiplyScalar(scale);
         const heading = gameObject.heading;
 
         const vertices = gameObject.vertices().map(item => item.multiplyScalar(scale).add(position));
-        const object = new Path2D(`M ${vertices[0].x} ${vertices[0].y} 
-                                   L ${vertices[1].x} ${vertices[1].y} 
-                                   L ${vertices[2].x} ${vertices[2].y} 
-                                   L ${vertices[3].x} ${vertices[3].y} Z`);
-        context.fillStyle = 'rgba(127, 0, 255, 1.0)';
-        context.strokeStyle = 'rgba(0, 0, 0, 1.0)';
-        context.fill(object);
+        const path = new Path2D(`M ${vertices[0].x} ${vertices[0].y} L ${vertices[1].x} ${vertices[1].y} L ${vertices[2].x} ${vertices[2].y} L ${vertices[3].x} ${vertices[3].y} Z`);
+
+        GameUtils.SAVE();
+
+        GameUtils.FILL_STYLE('rgba(127, 0, 255, 1.0)');
+        GameUtils.STROKE_STYLE('rgba(0, 0, 0, 1.0)');
+        GameUtils.FILL(path);
 
         const xAxis = heading.multiplyScalar(scale*4);
         const xEnd = position.add(xAxis);
@@ -34,23 +34,25 @@ export class GameObjectRenderer
         const yAxis = heading.rotated(Math.PI/2).multiplyScalar(scale*4);
         const yEnd = position.add(yAxis);
 
-        context.lineWidth = 0.5;
-        context.strokeStyle = 'rgba(255, 0, 0, 1.0)';
-        context.beginPath();
-        context.moveTo(position.x, position.y);
-        context.lineTo(xEnd.x, xEnd.y);
-        context.stroke();
+        GameUtils.STROKE_STYLE('rgba(255, 0, 0, 1.0)');
+        GameUtils.LINE_WIDTH(0.5);
+        GameUtils.BEGIN_PATH();
+        GameUtils.MOVE_TO(position.x, position.y)
+        GameUtils.LINE_TO(xEnd.x, xEnd.y);
+        GameUtils.STROKE();
 
-        context.strokeStyle = 'rgba(0, 0, 255, 1.0)';
-        context.beginPath();
-        context.moveTo(position.x, position.y);
-        context.lineTo(yEnd.x, yEnd.y);
-        context.stroke();
+        GameUtils.STROKE_STYLE('rgba(0, 0, 255, 1.0)');
+        GameUtils.BEGIN_PATH();
+        GameUtils.MOVE_TO(position.x, position.y)
+        GameUtils.LINE_TO(yEnd.x, yEnd.y);
+        GameUtils.STROKE();
 
-        context.beginPath();
-        context.arc(position.x, position.y, 0.5, 0, 2*Math.PI);
-        context.fillStyle = 'rgba(0, 255, 0, 0.6)'; 
-        context.strokeStyle = 'rgba(0, 0, 0, 1.0)';
-        context.fill();
+        GameUtils.FILL_STYLE('rgba(0, 255, 0, 0.6)');
+        GameUtils.STROKE_STYLE('rgba(0, 0, 0, 1.0)');
+        GameUtils.BEGIN_PATH();
+        GameUtils.CIRCLE(position.x, position.y, 0.5);
+        GameUtils.FILL();
+
+        GameUtils.RESTORE();
     }
 };

@@ -1,11 +1,11 @@
 import { GameObjectRenderer } from "../game/GameObjectRenderer.mjs";
 import { GameUtils } from "../game/GameUtils.mjs";
 
-export class TrackHighlightingRenderer extends GameObjectRenderer
+export class TrackHighlighterRenderer extends GameObjectRenderer
 {
-    constructor(gameObject)
+    constructor({ parent })
     {
-        super(gameObject);
+        super({ parent });
     }
 
     render(dt)
@@ -13,24 +13,24 @@ export class TrackHighlightingRenderer extends GameObjectRenderer
         GameUtils.SAVE();
         GameUtils.FILL_STYLE('yellow');
 
-
-        const track = this.gameObject.parent;
+        const trackHighlighter = this.parent;
+        const track = trackHighlighter.parent;
         const world = track.world;
         
         if (world)
         {
-            const camera = world.camera;
+            const player = world.player;
+            const camera = player.camera;
             const offset = camera.offset;
             const scale = GameUtils.SCALE;
-            const player = world.player;
             const points = track.points;
-
+            
             if (player)
             {
                 points.forEach(point => {
                     const p = point.add(offset).multiplyScalar(scale);
                     GameUtils.BEGIN_PATH();
-                    GameUtils.CIRCLE(p.x, p.y, scale);
+                    GameUtils.CIRCLE(p.x, p.y, 10*scale);
                     GameUtils.FILL();
                 });
                 

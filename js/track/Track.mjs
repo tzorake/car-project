@@ -3,12 +3,12 @@ import { Vector2D } from "../math/Vector2D.mjs";
 import { DisplayMode } from "./DisplayMode.mjs";
 import { TrackController } from "./TrackController.mjs";
 import { SplineType, TrackCurve } from "./TrackCurve.mjs";
-import { TrackHighlighting } from "./TrackHighlighting.mjs";
+import { TrackHighlighter } from "./TrackHighlighter.mjs";
 import { TrackRenderer } from "./TrackRenderer.mjs";
 
 class TrackCurveSet
 {
-    constructor(left, center, right)
+    constructor({ left, center, right })
     {
         this.left = left;
         this.center = center;
@@ -51,9 +51,9 @@ class TrackCurveSet
 
 export class Track extends GameObject
 {
-    constructor(x, y, width, height)
+    constructor({ x, y, width, height })
     {
-        super(x, y, width, height)
+        super({ x, y, width, height })
         
         this.points = [
             new Vector2D(-50, -37),
@@ -86,16 +86,15 @@ export class Track extends GameObject
             new Vector2D(-50 + 98 - 9 + 22 + 34 + 25 + 74 - 39 + 26 + 127 + 17 - 70 - 45 - 208 - 282 - 40 + 42 - 6 + 74 + 385 + 18 - 24, -37 - 77 - 38 + 58 + 21 - 16 - 48 - 36 + 103 + 51 + 32 - 77 - 111 - 25 + 12 + 162 + 49 + 34 + 36 + 97 - 14 - 50 - 78),
             new Vector2D(-50 + 98 - 9 + 22 + 34 + 25 + 74 - 39 + 26 + 127 + 17 - 70 - 45 - 208 - 282 - 40 + 42 - 6 + 74 + 385 + 18 - 24 - 108, -37 - 77 - 38 + 58 + 21 - 16 - 48 - 36 + 103 + 51 + 32 - 77 - 111 - 25 + 12 + 162 + 49 + 34 + 36 + 97 - 14 - 50 - 78 - 34),
         ];
-        this.curves = new TrackCurveSet(
-            null, 
-            new TrackCurve(this.points, SplineType.CatmullRomSpline, 100, DisplayMode.Visible), 
-            null
-        );
-        this.highlighter = new TrackHighlighting({ parent: this });
-        this.renderer = new TrackRenderer(this);
-        this.controller = new TrackController(this);
-
+        this.curves = new TrackCurveSet({
+            left:   null, 
+            center: new TrackCurve(this.points, SplineType.CatmullRomSpline, 100, DisplayMode.Visible), 
+            right:  null,
+        });
+        this.highlighter = new TrackHighlighter({ parent: this });
         
+        this.renderer = new TrackRenderer({ parent: this });
+        this.controller = new TrackController({ parent: this });
     }
 
     update(dt)

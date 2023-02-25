@@ -134,7 +134,11 @@ export class CarObjectController extends GameObjectController
             }
         };
 
-        this.#debugWidget = new DebugInfo(this, ['direction', 'actions'], new Rectangle(10, 220, 275, 200));
+        this.#debugWidget = new DebugInfo({
+            props: ['direction', 'actions'], 
+            rect: new Rectangle(10, 220, 275, 200), 
+            parent: this
+        });
     }
 
     set keyDown(value)

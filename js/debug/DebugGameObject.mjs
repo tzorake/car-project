@@ -7,14 +7,19 @@ export class DebugGameObject extends GameObject
 {
     #debugWidget = null;
 
-    constructor(x, y, length, width)
+    constructor({ x, y, width, height })
     {
-        super(x, y, length, width);
+        super({ x, y, width, height });
 
-        this.renderer = new GameObjectRenderer(this);
+        this.renderer = new GameObjectRenderer({ parent: this });
+        
         this.setProperty('focusable', true);
 
-        this.#debugWidget = new DebugInfo(this, ['position'], new Rectangle(295, 10, 275, 200));
+        this.#debugWidget = new DebugInfo({
+            props: ['position'], 
+            rect: new Rectangle(295, 10, 275, 200), 
+            parent: this
+        });
     }
 
     update(dt)

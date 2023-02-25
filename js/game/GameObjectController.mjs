@@ -1,18 +1,10 @@
 export class GameObjectController
 {
-    #gameObject;
-
-    constructor(gameObject)
+    constructor({ parent })
     {
         // https://stephendoddtech.com/blog/game-design/keyboard-input-player-controller-2d
         // https://stephendoddtech.com/blog/game-design/keyboard-event-game-input-map
-
-        this.#gameObject = gameObject;
-    }
-
-    get gameObject()
-    {
-        return this.#gameObject;
+        this.parent = parent;
     }
 
     connect()

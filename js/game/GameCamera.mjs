@@ -16,48 +16,30 @@ GameCameraFocusMode.ENABLED = iota++;
 
 export class GameCamera extends GameObject
 {
-    #mode;
-    #target = null;
-
     #debugWidget = null;
 
-    constructor(x, y, length, width, mode = GameCameraMode.FIXED)
+    constructor({ x, y, width, height, mode })
     {
-        super(x, y, length, width);
+        super({ x, y, width, height });
         
-        this.mode = mode;
+        this.target = null;
+        this.mode = mode ? mode : GameCameraMode.FIXED;
 
-        this.controller = new GameCameraController(this);
+        this.controller = new GameCameraController({ parent: this });
         this.controller.connect();
         
-        this.#debugWidget = new DebugInfo(this, ['position', 'offset', 'mode'], new Rectangle(10, 430, 275, 200));
-    }
-
-    get target()
-    {
-        return this.#target;
-    }
-
-    set target(value)
-    {
-        this.#target = value;
-    }
-
-    get mode()
-    {
-        return this.#mode;
-    }
-
-    set mode(value)
-    {
-        this.#mode = value;
+        this.#debugWidget = new DebugInfo({
+            props: ['position', 'offset', 'mode'], 
+            rect: new Rectangle(10, 430, 275, 200), 
+            parent: this
+        });
     }
 
     get offset()
     {
         return new Vector2D(
-            this.scale.x/2 - this.position.x, 
-            this.scale.y/2 - this.position.y
+            this.scale.x / 2 - this.position.x, 
+            this.scale.y / 2 - this.position.y
         );
     }
 
@@ -83,7 +65,6 @@ export class GameCamera extends GameObject
                 {
                     throw new Error('GameCamera.follow() : `target` is not initialized.')
                 }
-
                 this.position = Vector2D.lerp(this.position, this.target.position, dt);
             } break;
             

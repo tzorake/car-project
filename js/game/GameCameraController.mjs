@@ -42,9 +42,6 @@ GameCameraActionKeyMapping[GameCameraAction.NEXT] = ['KeyP'];
 
 export class GameCameraController extends GameObjectController
 {
-    #actions = new Action();
-    #state = new State();
-
     #debugWidget = null;
 
     #keyDown = event => {
@@ -54,9 +51,12 @@ export class GameCameraController extends GameObjectController
         throw new Error('GameObjectController.keyUp(event) : The method is not implemented yet!');
     }
 
-    constructor(gameObject)
+    constructor({ parent })
     {
-        super(gameObject);
+        super({ parent });
+
+        this.actions = new Action();
+        this.state = new State();
 
         this.#keyDown = event => {
             const keyCode = event.code;
@@ -80,7 +80,11 @@ export class GameCameraController extends GameObjectController
 
         if (GameUtils.DEBUG)
         {
-            this.#debugWidget = new DebugInfo(this, ['actions', 'state'], new Rectangle(10, 640, 275, 200));
+            this.#debugWidget = new DebugInfo({
+                props: ['actions', 'state'],
+                rect: new Rectangle(10, 640, 275, 200), 
+                parent: this
+            });
         }
     }
 
@@ -100,19 +104,27 @@ export class GameCameraController extends GameObjectController
 
     update(dt)
     {
-        const camera = this.gameObject;
         const actions = this.actions;
         const state = this.state;
+
+        const camera = this.parent;
+
         const world = camera.world;
-        const objects = world.objects;
+        const player = world.player;
+
+        const track = world.track;
+        const car = player.car;
+        const enemies = world.enemies;
+
+        const pool = [car].concat(enemies);
 
         if (state.index < 0)
         {
-            state.index = objects.findIndex(item => item.getProperty('focusable'));
-            camera.target = objects[state.index];
+            state.index = pool.findIndex(item => item.getProperty('focusable'));
+            camera.target = pool[state.index];
         }
 
-        const focusable = objects.filter(item => item.getProperty('focusable'));
+        const focusable = pool.filter(item => item.getProperty('focusable'));
 
         if (actions.keyPressed[GameCameraAction.NEXT] && state.time > 5.0)
         {
@@ -136,25 +148,5 @@ export class GameCameraController extends GameObjectController
         {
             this.#debugWidget.update();
         }
-    }
-
-    get actions()
-    {
-        return this.#actions;
-    }
-
-    set actions(value)
-    {
-        this.#actions = value;
-    }
-
-    get state()
-    {
-        return this.#state;
-    }
-
-    set state(value)
-    {
-        this.#state = value;
     }
 }

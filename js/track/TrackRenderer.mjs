@@ -4,21 +4,21 @@ import { GameUtils } from "../game/GameUtils.mjs";
 
 export class TrackRenderer extends GameObjectRenderer
 {
-    constructor(gameObject)
+    constructor({ parent })
     {
-        super(gameObject);
+        super({ parent });
     }
 
     render(dt)
     {
-        const gameObject = this.gameObject;
-        const world = gameObject.world;
-        const camera = world.camera;
+        const track = this.parent;
+        const world = track.world;
+        const player = world.player;
+        const camera = player.camera;
         const offset = camera.offset;
 
-        const context = GameUtils.CONTEXT;
         const scale = GameUtils.SCALE;
-        const curves = gameObject.curves.get();
+        const curves = track.curves.get();
 
         function renderCurves()
         {
@@ -31,25 +31,27 @@ export class TrackRenderer extends GameObjectRenderer
 
                 if (segments.length === 0) return;
 
-                context.save();
+                GameUtils.SAVE();
 
-                context.fillStyle = 'rgba(0, 0, 0, 0.0)';
-                context.strokeStyle = 'rgba(255, 255, 255, 1.0)';
-                context.lineWidth = 4;
-        
-                context.beginPath();
+                GameUtils.FILL_STYLE('rgba(0, 0, 0, 0.0)');
+                GameUtils.STROKE_STYLE('rgba(255, 255, 255, 1.0)');
+                GameUtils.LINE_WIDTH(4.0);
+
+                GameUtils.BEGIN_PATH();
+
                 segments.concat(segments[0]).forEach(segment => {
                     const points = segment.points;
                     points.slice(0,-1).forEach((point, index) => {
                         const vi = point.add(offset).multiplyScalar(scale);
                         const vj = points[index + 1].add(offset).multiplyScalar(scale);
                         
-                        context.moveTo(vi.x, vi.y);
-                        context.lineTo(vj.x, vj.y);
+                        GameUtils.MOVE_TO(vi.x, vi.y);
+                        GameUtils.LINE_TO(vj.x, vj.y);
                     });
                 });
-                context.stroke();
-                context.restore();
+
+                GameUtils.STROKE();
+                GameUtils.RESTORE();
             });
         }
 
@@ -63,26 +65,24 @@ export class TrackRenderer extends GameObjectRenderer
 
                 const points = curve.points;
 
-                context.save();
+                GameUtils.SAVE();
 
-                context.fillStyle = 'rgba(32, 33, 36, 1.0)';
-                context.strokeStyle = 'rgba(255, 255, 255, 1.0)';
-                context.lineWidth = 4;
+                GameUtils.FILL_STYLE('rgba(32, 33, 36, 1.0)');
+                GameUtils.STROKE_STYLE('rgba(255, 255, 255, 1.0)');
+                GameUtils.LINE_WIDTH(4.0);
         
                 points.forEach(p => {
                     const point = p.add(offset).multiplyScalar(scale);
 
                     if (p.mode !== DisplayMode.Visible) return;
 
-                    context.beginPath();
-                    context.arc(point.x, point.y, 6, 0, 2*Math.PI);
-                    context.fill();
-                    context.stroke();
-
-                    
+                    GameUtils.BEGIN_PATH();
+                    GameUtils.CIRCLE(point.x, point.y, 6);
+                    GameUtils.FILL();
+                    GameUtils.STROKE();
                 });
                 
-                context.restore();
+                GameUtils.RESTORE();
             });
         }
 
@@ -90,8 +90,8 @@ export class TrackRenderer extends GameObjectRenderer
         renderPoints();
 
         if (world && world.player)
-        {
-            this.gameObject.highlighter.renderer.render(dt);
+        {    
+            this.parent.highlighter.renderer.render(dt);
         }
     }
 }

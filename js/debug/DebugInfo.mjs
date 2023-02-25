@@ -5,13 +5,13 @@ export class DebugInfo
 {
     static ROOT = document.querySelector('body .container');
 
-    #gameObject;
     #props;
     #id;
 
-    constructor(gameObject, props, rect)
+    constructor({ props, rect, parent })
     {
-        this.#gameObject = gameObject;
+        this.parent = parent;
+        
         this.#props = props;
         this.#id = MathFunction.uuid();
 
@@ -93,7 +93,7 @@ export class DebugInfo
         const header = document.createElement('div');
         header.className = 'header';
 
-        const text = document.createTextNode(this.#gameObject.constructor.name);
+        const text = document.createTextNode(this.parent.constructor.name);
         header.append(text);
 
         const content = document.createElement('pre');
@@ -120,7 +120,7 @@ export class DebugInfo
         {
             const text = document.querySelectorAll(`[id="${this.#id}"] .content .text`);
             this.#props.forEach((prop, index) => {
-                text[index].textContent = `${prop} : ${this.#gameObject[prop]}`;
+                text[index].textContent = `${prop} : ${this.parent[prop]}`;
             });
         }
     }

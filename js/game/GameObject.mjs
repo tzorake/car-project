@@ -2,37 +2,28 @@ import { Vector2D } from "../math/Vector2D.mjs";
 
 export class GameObject
 {
-    #position;
-    #scale;
-    #velocity;
-    #acceleration;
     #heading;
-    #mass;
-
-    #world;
-
-    #renderer = null;
-    #controller = null;
-
     #properties = {};
-    // #focusable = false;
 
-    constructor(x, y, width, height)
+    constructor({ x, y, width, height })
     {
-        this.#heading      = new Vector2D(1.0, 0.0);      // heading direction
-        this.#position     = new Vector2D(x, y);          // position
-        this.#scale        = new Vector2D(width, height); // width and height
-        this.#velocity     = new Vector2D(0.0, 0.0);      // velocity
+        this.position = new Vector2D(x, y);          // position
+        this.scale    = new Vector2D(width, height); // width and height
+        this.velocity = new Vector2D(0.0, 0.0);      // velocity
+
+        this.#heading = new Vector2D(1.0, 0.0);      // heading direction
+
+        this.mass = 1.0;
+        this.world = null;
+        this.acceleration = new Vector2D(0.0, 0.0);
+
+        this.renderer = null;
+        this.controller = null;
     }
 
-    get position() 
+    get heading() 
     {
-        return this.#position;
-    }
-
-    set position(value) 
-    {
-        this.#position = value;
+        return this.#heading;
     }
 
     get angle() 
@@ -43,86 +34,6 @@ export class GameObject
     set angle(value) 
     {
         this.#heading.angle = value;
-    }
-
-    get scale() 
-    {
-        return this.#scale;
-    }
-
-    set scale(value) 
-    {
-        this.#scale = value;
-    }
-
-    get velocity() 
-    {
-        return this.#velocity;
-    }
-
-    set acceleration(value) 
-    {
-        this.#acceleration = value;
-    }
-
-    get acceleration() 
-    {
-        return this.#acceleration;
-    }
-
-    set velocity(value) 
-    {
-        this.#velocity = value;
-    }
-
-    get heading() 
-    {
-        return this.#heading;
-    }
-
-    get rotation() 
-    {
-        return this.heading.angle();
-    }
-
-    get mass() 
-    {
-        return this.#mass;
-    }
-
-    set mass(value) 
-    {
-        this.#mass = value;
-    }
-
-    get world()
-    {
-        return this.#world;
-    }
-
-    set world(value) 
-    {
-        this.#world = value;
-    }
-
-    get renderer() 
-    {
-        return this.#renderer;
-    }
-
-    set renderer(value) 
-    {
-        this.#renderer = value;
-    }
-
-    get controller()
-    {
-        return this.#controller;
-    }
-
-    set controller(value)
-    {
-        this.#controller = value;
     }
 
     update(dt) 

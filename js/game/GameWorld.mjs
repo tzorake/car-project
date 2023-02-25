@@ -4,81 +4,82 @@ import { GameUtils } from "./GameUtils.mjs";
 
 export class GameWorld
 {
-    #objects;
-
     constructor({ objects, parent })
     {
         this.parent = parent;
 
-        this.objects = objects;
-        this.objects.forEach(object => {
-            object.world = this;
+        const { player, enemies, track } = objects;
+
+        this.player = player;
+        this.enemies = enemies;
+        this.track = track;
+        
+        const pool = [track].concat([player]).concat(enemies);
+
+        pool.forEach(object => { 
+            object.world = this; 
         });
     }
 
-    get objects()
-    {
-        return this.#objects;
-    }
-
-    set objects(value)
-    {
-        this.#objects = value;
-    }
-
-    get camera()
-    {
-        const cameras = this.objects.filter(item => item instanceof GameCamera);
-        return cameras ? cameras[0] : null;
-    }
-
-    get player()
-    {
-        const players = this.objects.filter(player => player.type === CarObjectType.PLAYER);
-        return players ? players[0] : null;
-    }
-
-    append(object)
-    {
-        object.world = this;
-        this.objects.push(object);
-    }
+    // append(object)
+    // {
+    //     object.world = this;
+    //     this.other.push(object);
+    // }
 
     update(dt)
     {
-        const objects = this.objects;
-        objects.forEach(object => {
-            const camera = this.camera;
-
-            if (camera)
-            {
-                camera.update(dt);
-            }
-
-            object.update(dt);
+        const track = this.track;
+        const player = this.player;
+        const enemies = this.enemies;
+        
+        const pool = [track].concat([player]).concat(enemies);
+        pool.forEach(object => {
+            object.update(dt)
         });
     }
 
     render(dt)
     {
-        const objects = this.objects;
+        const track = this.track;
+        const player = this.player;
+        const enemies = this.enemies;
+
+        const pool = [track].concat([player]).concat(enemies);
 
         GameUtils.BACKGROUND('rgba(32, 33, 36, 1.0)');
 
-        objects.forEach(object => {
-            object.render(dt);
+        pool.forEach(object => {
+            object.render(dt)
         });
     }
 
     connect()
     {
-        const connactable = this.objects.filter(object => !!object.connect);
-        connactable.forEach(object => object.connect());
+        const track = this.track;
+        const player = this.player;
+        const enemies = this.enemies;
+
+        const pool = [track].concat([player]).concat(enemies);
+
+        const connactable = pool.filter(object => !!object.connect);
+        console.info(connactable);
+        connactable.forEach(object => {
+            object.connect();
+        });
     }
 
     disconnect()
     {
-        const disconnactable = this.objects.filter(object => !!object.disconnect);
-        disconnactable.forEach(object => object.disconnect());
+        const track = this.track;
+        const player = this.player;
+        const enemies = this.enemies;
+
+        const pool = [track].concat([player]).concat(enemies);
+
+        const disconnactable = pool.filter(object => !!object.disconnect);
+        disconnactable.forEach(object => {
+            object.disconnect();
+        });
     }
 };

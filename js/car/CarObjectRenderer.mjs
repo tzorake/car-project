@@ -3,18 +3,19 @@ import { GameUtils } from "../game/GameUtils.mjs";
 
 export class CarObjectRenderer extends GameObjectRenderer
 {
-    constructor(gameObject)
+    constructor({ parent })
     {
-        super(gameObject);
+        super({ parent });
     }
 
     render(dt)
     {
         super.render(dt);
 
-        const gameObject = this.gameObject;
+        const gameObject = this.parent;
         const world = gameObject.world;
-        const camera = world.camera;
+        const player = world.player;
+        const camera = player.camera;
         const offset = camera.offset;
 
         const context = GameUtils.CONTEXT;
