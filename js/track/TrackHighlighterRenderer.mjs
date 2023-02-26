@@ -27,11 +27,16 @@ export class TrackHighlighterRenderer extends GameObjectRenderer
             
             if (player)
             {
-                points.forEach(point => {
-                    const p = point.add(offset).multiplyScalar(scale);
-                    GameUtils.BEGIN_PATH();
-                    GameUtils.CIRCLE(p.x, p.y, 10*scale);
-                    GameUtils.FILL();
+                const next = trackHighlighter.next;
+
+                points.forEach((point, index) => {
+                    if (next === index)
+                    {
+                        const p = point.add(offset).multiplyScalar(scale);
+                        GameUtils.BEGIN_PATH();
+                        GameUtils.CIRCLE(p.x, p.y, 10*scale);
+                        GameUtils.FILL();
+                    }
                 });
                 
             }

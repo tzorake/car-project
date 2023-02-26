@@ -24,7 +24,7 @@ class TrackCurveSet
     {
         this.center.chain();
 
-        this.trackBorders(10);
+        this.trackBorders(Track.WIDTH / 2);
 
         this.left.chain();
         this.right.chain();
@@ -109,6 +109,8 @@ export class Track extends GameObject
         if (this.points.length < 4) return;
 
         this.curves.chain();
+
+        this.highlighter.update(dt);
     }
 
     connect()
@@ -121,3 +123,5 @@ export class Track extends GameObject
         this.controller.disconnect();
     }
 }
+
+Track.WIDTH = 20.0;
