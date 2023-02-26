@@ -1,6 +1,6 @@
 import { MathFunction } from "./MathFunction.mjs";
 
-export class Vector2D 
+export class Vector2 
 {
     #x;
     #y;
@@ -33,9 +33,9 @@ export class Vector2D
 
     rotated(theta, c) 
     {
-        c = c == null ? c = new Vector2D(0.0, 0.0) : c;
+        c = c == null ? c = new Vector2(0.0, 0.0) : c;
 
-        return new Vector2D(
+        return new Vector2(
             (this.x - c.x)*Math.cos(theta) - (this.y - c.y)*Math.sin(theta) + c.x,
             (this.x - c.x)*Math.sin(theta) + (this.y - c.y)*Math.cos(theta) + c.y
         );
@@ -43,7 +43,7 @@ export class Vector2D
 
     rotate(theta, c) 
     {
-        c = c == null ? c = new Vector2D(0.0, 0.0) : c;
+        c = c == null ? c = new Vector2(0.0, 0.0) : c;
 
         this.x = (this.x - c.x)*Math.cos(theta) - (this.y - c.y)*Math.sin(theta) + c.x;
         this.y = (this.x - c.x)*Math.sin(theta) + (this.y - c.y)*Math.cos(theta) + c.y;
@@ -70,7 +70,7 @@ export class Vector2D
 
     add(...other) 
     {
-        return new Vector2D(
+        return new Vector2(
             this.x + other.reduce((acc, item) => acc += item.x, 0.0), 
             this.y + other.reduce((acc, item) => acc += item.y, 0.0)
         );
@@ -78,7 +78,7 @@ export class Vector2D
 
     sub(...other)
     {
-        return new Vector2D(
+        return new Vector2(
             this.x + other.reduce((acc, item) => acc -= item.x, 0.0), 
             this.y + other.reduce((acc, item) => acc -= item.y, 0.0)
         );
@@ -91,7 +91,7 @@ export class Vector2D
 
     multiplyScalar(scalar) 
     {
-        return new Vector2D(
+        return new Vector2(
             scalar*this.x, 
             scalar*this.y
         );
@@ -99,7 +99,7 @@ export class Vector2D
 
     copy()
     {
-        return new Vector2D(this.x, this.y);
+        return new Vector2(this.x, this.y);
     }
 
     normalize()
@@ -120,12 +120,12 @@ export class Vector2D
 
     clampMagnitude(magnitude)
     {
-        return this.magnitude() > magnitude ? this.normalized().multiplyScalar(magnitude) : new Vector2D(this.x, this.y);
+        return this.magnitude() > magnitude ? this.normalized().multiplyScalar(magnitude) : new Vector2(this.x, this.y);
     }
 
     static lerp(a, b, t)
     {
-        return new Vector2D(
+        return new Vector2(
             MathFunction.lerp(a.x, b.x, t),
             MathFunction.lerp(a.y, b.y, t) 
         )

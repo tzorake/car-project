@@ -1,7 +1,7 @@
-import { Vector2D } from "../math/Vector2D.mjs";
+import { Vector2 } from "../math/Vector2.mjs";
 import { DisplayMode } from "./DisplayMode.mjs";
 
-export class TrackControlPoint extends Vector2D
+export class TrackControlPoint extends Vector2
 {
     constructor(x, y, mode = DisplayMode.Visible)
     {

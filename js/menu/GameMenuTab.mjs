@@ -1,4 +1,4 @@
-import { Vector2D } from "../math/Vector2D.mjs";
+import { Vector2 } from "../math/Vector2.mjs";
 import { GameMenuElementState, label, rect } from "./GameMenuHelper.mjs";
 
 export class GameMenuTab
@@ -33,12 +33,12 @@ export class GameMenuTab
 
     static get SCALE()
     {
-        return new Vector2D(100, 30);
+        return new Vector2(100, 30);
     }
 
     static get MARGIN()
     {
-        return new Vector2D(0, 100);
+        return new Vector2(0, 100);
     }
 
     get STYLE_1()

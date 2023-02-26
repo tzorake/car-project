@@ -1,6 +1,6 @@
 import { GameUtils } from "../game/GameUtils.mjs";
 import { MathFunction } from "../math/MathFunction.mjs";
-import { Vector2D } from "../math/Vector2D.mjs";
+import { Vector2 } from "../math/Vector2.mjs";
 import { rect } from "./GameMenuHelper.mjs";
 
 let iota = 0;
@@ -176,6 +176,6 @@ export class GameMenuTransition
 
     static get SCALE()
     {
-        return new Vector2D(GameUtils.CANVAS.width, GameUtils.CANVAS.height);
+        return new Vector2(GameUtils.CANVAS.width, GameUtils.CANVAS.height);
     }
 };

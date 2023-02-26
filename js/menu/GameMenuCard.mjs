@@ -1,7 +1,7 @@
 import { GameUtils } from "../game/GameUtils.mjs";
 import { EventListenerType } from "../game/GlobalGameController.mjs";
 import { MathFunction } from "../math/MathFunction.mjs";
-import { Vector2D } from "../math/Vector2D.mjs";
+import { Vector2 } from "../math/Vector2.mjs";
 import { GameMenuElementState, rect, label } from "./GameMenuHelper.mjs";
 
 export class GameMenuCard
@@ -103,12 +103,12 @@ export class GameMenuCard
 
     static get SCALE()
     {
-        return new Vector2D(250, 400);
+        return new Vector2(250, 400);
     }
 
     static get MARGIN()
     {
-        return new Vector2D(100, 60);
+        return new Vector2(100, 60);
     }
 
     static get FONT_SIZE()

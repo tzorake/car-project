@@ -3,7 +3,7 @@ import { CarObjectController } from "./CarObjectController.mjs";
 import { CarObjectRenderer } from "./CarObjectRenderer.mjs";
 import { DebugInfo } from "../debug/DebugInfo.mjs";
 import { GameObject } from "../game/GameObject.mjs";
-import { Vector2D } from "../math/Vector2D.mjs";
+import { Vector2 } from "../math/Vector2.mjs";
 
 let iota = 0;
 export const CarObjectType = {};
@@ -59,7 +59,7 @@ export class CarObject extends GameObject
 
         this.velocity = this.velocity.multiplyScalar(this.drag);
         this.velocity = this.velocity.clampMagnitude(this.maxSpeed);
-        this.velocity = Vector2D.lerp(this.velocity.normalized(), this.heading, this.traction*dt).multiplyScalar(this.velocity.magnitude())
+        this.velocity = Vector2.lerp(this.velocity.normalized(), this.heading, this.traction*dt).multiplyScalar(this.velocity.magnitude())
 
         this.#debugWidget.update();
     }

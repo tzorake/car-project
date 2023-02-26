@@ -1,6 +1,6 @@
 import { DebugInfo } from "../debug/DebugInfo.mjs";
 import { Rectangle } from "../math/Rectangle.mjs";
-import { Vector2D } from "../math/Vector2D.mjs";
+import { Vector2 } from "../math/Vector2.mjs";
 import { GameCameraController } from "./GameCameraController.mjs";
 import { GameObject } from "./GameObject.mjs";
 
@@ -37,7 +37,7 @@ export class GameCamera extends GameObject
 
     get offset()
     {
-        return new Vector2D(
+        return new Vector2(
             this.scale.x / 2 - this.position.x, 
             this.scale.y / 2 - this.position.y
         );
@@ -65,7 +65,7 @@ export class GameCamera extends GameObject
                 {
                     throw new Error('GameCamera.follow() : `target` is not initialized.')
                 }
-                this.position = Vector2D.lerp(this.position, this.target.position, dt);
+                this.position = Vector2.lerp(this.position, this.target.position, dt);
             } break;
             
             default:

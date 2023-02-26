@@ -1,5 +1,5 @@
 import { MathFunction } from "../math/MathFunction.mjs";
-import { Vector2D } from "../math/Vector2D.mjs";
+import { Vector2 } from "../math/Vector2.mjs";
 import { DisplayMode } from "./DisplayMode.mjs";
 import { TrackSegment } from "./TrackSegment.mjs";
 
@@ -29,27 +29,27 @@ class CatmullRomSpline
         // const B2 = (t3 - t) / (t3 - t1) * A2 + (t - t1) / (t3 - t1) * A3;
         // const points = (t2 - t) / (t2 - t1) * B1 + (t - t1) / (t2 - t1) * B2;
         const points = t.map(T => {
-            const A1 = new Vector2D(
+            const A1 = new Vector2(
                 (t1 - T) / (t1 - t0) * P0.x + (T - t0) / (t1 - t0) * P1.x,
                 (t1 - T) / (t1 - t0) * P0.y + (T - t0) / (t1 - t0) * P1.y
             );
-            const A2 = new Vector2D(
+            const A2 = new Vector2(
                 (t2 - T) / (t2 - t1) * P1.x + (T - t1) / (t2 - t1) * P2.x,
                 (t2 - T) / (t2 - t1) * P1.y + (T - t1) / (t2 - t1) * P2.y
             );
-            const A3 = new Vector2D(
+            const A3 = new Vector2(
                 (t3 - T) / (t3 - t2) * P2.x + (T - t2) / (t3 - t2) * P3.x,
                 (t3 - T) / (t3 - t2) * P2.y + (T - t2) / (t3 - t2) * P3.y
             );
-            const B1 = new Vector2D(
+            const B1 = new Vector2(
                 (t2 - T) / (t2 - t0) * A1.x + (T - t0) / (t2 - t0) * A2.x,
                 (t2 - T) / (t2 - t0) * A1.y + (T - t0) / (t2 - t0) * A2.y
             );
-            const B2 = new Vector2D(
+            const B2 = new Vector2(
                 (t3 - T) / (t3 - t1) * A2.x + (T - t1) / (t3 - t1) * A3.x,
                 (t3 - T) / (t3 - t1) * A2.y + (T - t1) / (t3 - t1) * A3.y
             );
-            const point = new Vector2D(
+            const point = new Vector2(
                 (t2 - T) / (t2 - t1) * B1.x + (T - t1) / (t2 - t1) * B2.x,
                 (t2 - T) / (t2 - t1) * B1.y + (T - t1) / (t2 - t1) * B2.y
             );

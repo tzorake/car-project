@@ -1,4 +1,4 @@
-import { Vector2D } from "../math/Vector2D.mjs";
+import { Vector2 } from "../math/Vector2.mjs";
 
 export class GameObject
 {
@@ -7,15 +7,15 @@ export class GameObject
 
     constructor({ x, y, width, height })
     {
-        this.position = new Vector2D(x, y);          // position
-        this.scale    = new Vector2D(width, height); // width and height
-        this.velocity = new Vector2D(0.0, 0.0);      // velocity
+        this.position = new Vector2(x, y);          // position
+        this.scale    = new Vector2(width, height); // width and height
+        this.velocity = new Vector2(0.0, 0.0);      // velocity
 
-        this.#heading = new Vector2D(1.0, 0.0);      // heading direction
+        this.#heading = new Vector2(1.0, 0.0);      // heading direction
 
         this.mass = 1.0;
         this.world = null;
-        this.acceleration = new Vector2D(0.0, 0.0);
+        this.acceleration = new Vector2(0.0, 0.0);
 
         this.renderer = null;
         this.controller = null;
@@ -58,19 +58,19 @@ export class GameObject
         const angle = heading.angle;
         const [width, height] = [scale.x, scale.y]
         const vertices = [
-            new Vector2D(
+            new Vector2(
                 - width/2, 
                 - height/2
             ),
-            new Vector2D(
+            new Vector2(
                 + width/2, 
                 - height/2
             ),
-            new Vector2D(
+            new Vector2(
                 + width/2, 
                 + height/2
             ),
-            new Vector2D(
+            new Vector2(
                 - width/2, 
                 + height/2
             )

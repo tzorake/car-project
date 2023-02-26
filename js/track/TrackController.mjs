@@ -1,7 +1,7 @@
 import { GameObjectController } from "../game/GameObjectController.mjs";
 import { GameUtils } from "../game/GameUtils.mjs";
 import { EventListenerType } from "../game/GlobalGameController.mjs";
-import { Vector2D } from "../math/Vector2D.mjs";
+import { Vector2 } from "../math/Vector2.mjs";
 import { TrackControlPoint } from "./TrackControlPoint.mjs";
 
 export class TrackController extends GameObjectController
@@ -18,7 +18,7 @@ export class TrackController extends GameObjectController
             const world = gameObject.world;
             const camera = world.camera;
             const offset = camera.offset;
-            const point = new Vector2D(Math.floor(event.clientX / GameUtils.SCALE), Math.floor(event.clientY / GameUtils.SCALE)).sub(offset);
+            const point = new Vector2(Math.floor(event.clientX / GameUtils.SCALE), Math.floor(event.clientY / GameUtils.SCALE)).sub(offset);
 
             gameObject.points.push(new TrackControlPoint(point.x, point.y))
         };
