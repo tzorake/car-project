@@ -14,38 +14,38 @@ export class TrackController extends GameObjectController
     {
         super(gameObject);
 
-        this.#mouseDown = event => {
-            const world = gameObject.world;
-            const camera = world.camera;
-            const offset = camera.offset;
-            const point = new Vector2(Math.floor(event.clientX / GameUtils.SCALE), Math.floor(event.clientY / GameUtils.SCALE)).sub(offset);
+        // this.#mouseDown = event => {
+        //     const world = gameObject.world;
+        //     const camera = world.camera;
+        //     const offset = camera.offset;
+        //     const point = new Vector2(Math.floor(event.clientX / GameUtils.SCALE), Math.floor(event.clientY / GameUtils.SCALE)).sub(offset);
 
-            gameObject.points.push(new TrackControlPoint(point.x, point.y))
-        };
+        //     gameObject.points.push(new TrackControlPoint(point.x, point.y))
+        // };
 
-        this.#mouseUp = event => {
+        // this.#mouseUp = event => {
             
-        };
+        // };
 
-        this.#mouseDragged = event => {
+        // this.#mouseDragged = event => {
             
-        };
+        // };
     }
 
     connect()
     {
-        const controller = GameUtils.CONTROLLER;
-        controller.addCallback(EventListenerType.MOUSEDOWN, this.#mouseDown);
-        controller.addCallback(EventListenerType.MOUSEUP,   this.#mouseUp);
-        controller.addCallback(EventListenerType.MOUSEMOVE, this.#mouseDragged);
+        // const controller = GameUtils.CONTROLLER;
+        // controller.addCallback(EventListenerType.MOUSEDOWN, this.#mouseDown);
+        // controller.addCallback(EventListenerType.MOUSEUP,   this.#mouseUp);
+        // controller.addCallback(EventListenerType.MOUSEMOVE, this.#mouseDragged);
     }
 
     disconnect()
     {
-        const controller = GameUtils.CONTROLLER;
-        controller.removeCallback(EventListenerType.MOUSEDOWN, this.#mouseDown);
-        controller.removeCallback(EventListenerType.MOUSEUP,   this.#mouseUp);
-        controller.removeCallback(EventListenerType.MOUSEMOVE, this.#mouseDragged);
+        // const controller = GameUtils.CONTROLLER;
+        // controller.removeCallback(EventListenerType.MOUSEDOWN, this.#mouseDown);
+        // controller.removeCallback(EventListenerType.MOUSEUP,   this.#mouseUp);
+        // controller.removeCallback(EventListenerType.MOUSEMOVE, this.#mouseDragged);
     }
 
     update(dt)

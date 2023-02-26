@@ -1,5 +1,4 @@
-import { CarObjectType } from "../car/CarObject.mjs";
-import { GameCamera } from "./GameCamera.mjs";
+import { GameScoreboard } from "./GameScoreboard.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 
 export class GameWorld
@@ -13,12 +12,17 @@ export class GameWorld
         this.player = player;
         this.enemies = enemies;
         this.track = track;
-        
-        const pool = [track].concat([player]).concat(enemies);
 
-        pool.forEach(object => { 
+        this.scoreboard = new GameScoreboard({ cx: GameScoreboard.SCALE.x / 2, cy: GameUtils.CANVAS.height / 2, parent: this });
+        
+        this.objects.forEach(object => { 
             object.world = this; 
         });
+    }
+
+    get objects()
+    {
+        return [this.track, this.player].concat(this.enemies)
     }
 
     // append(object)
@@ -29,57 +33,50 @@ export class GameWorld
 
     update(dt)
     {
-        const track = this.track;
-        const player = this.player;
-        const enemies = this.enemies;
-        
-        const pool = [track].concat([player]).concat(enemies);
-        pool.forEach(object => {
+        const objects = this.objects;
+
+        objects.forEach(object => {
             object.update(dt)
         });
+
+        this.scoreboard.update(dt);
     }
 
     render(dt)
     {
-        const track = this.track;
-        const player = this.player;
-        const enemies = this.enemies;
-
-        const pool = [track].concat([player]).concat(enemies);
+        const objects = this.objects;
 
         GameUtils.BACKGROUND('rgba(32, 33, 36, 1.0)');
 
-        pool.forEach(object => {
+        objects.forEach(object => {
             object.render(dt)
         });
+
+        this.scoreboard.render(dt);
     }
 
     connect()
     {
-        const track = this.track;
-        const player = this.player;
-        const enemies = this.enemies;
+        const objects = this.objects;
 
-        const pool = [track].concat([player]).concat(enemies);
+        const connactable = objects.filter(object => !!object.connect);
 
-        const connactable = pool.filter(object => !!object.connect);
-        console.info(connactable);
         connactable.forEach(object => {
             object.connect();
         });
+
+        this.scoreboard.connect();
     }
 
     disconnect()
     {
-        const track = this.track;
-        const player = this.player;
-        const enemies = this.enemies;
+        const objects = this.objects;
 
-        const pool = [track].concat([player]).concat(enemies);
-
-        const disconnactable = pool.filter(object => !!object.disconnect);
+        const disconnactable = objects.filter(object => !!object.disconnect);
         disconnactable.forEach(object => {
             object.disconnect();
         });
+
+        this.scoreboard.disconnect();
     }
 };

@@ -57,7 +57,7 @@ export class CarObject extends GameObject
 
         this.angle   += direction.vertical * this.velocity.magnitude() * this.steerAngle * dt;
 
-        this.velocity = this.velocity.multiplyScalar(this.drag);
+        this.velocity = this.velocity.multiplyScalar(1 - this.drag*dt);
         this.velocity = this.velocity.clampMagnitude(this.maxSpeed);
         this.velocity = Vector2.lerp(this.velocity.normalized(), this.heading, this.traction*dt).multiplyScalar(this.velocity.magnitude())
 

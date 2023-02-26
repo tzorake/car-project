@@ -1,5 +1,6 @@
 import { CarObject, CarObjectType } from "../car/CarObject.mjs";
 import { GameCamera, GameCameraMode } from "./GameCamera.mjs";
+import { GameTimer } from "./GameTimer.mjs";
 import { GameUtils } from "./GameUtils.mjs";
 
 export class Player
@@ -22,7 +23,8 @@ export class Player
             width: canvas.width / scale, 
             height: canvas.height / scale, 
             mode: GameCameraMode.FOLLOW 
-        })
+        });
+        this.timer = new GameTimer();
     }
 
     update(dt)
@@ -30,18 +32,18 @@ export class Player
         const car = this.car;
         const camera = this.camera;
 
-        const pool = [car].concat([camera])
+        const objects = [car].concat([camera])
 
-        pool.forEach(object => object.update(dt));
+        objects.forEach(object => object.update(dt));
     }
 
     render(dt)
     {
         const car = this.car;
 
-        const pool = [car.renderer];
+        const objects = [car.renderer];
 
-        pool.forEach(renderer => renderer.render(dt));
+        objects.forEach(renderer => renderer.render(dt));
     }
 
     set world(value)

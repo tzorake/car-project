@@ -1,7 +1,6 @@
 import { GameObject } from "../game/GameObject.mjs";
 import { Vector2 } from "../math/Vector2.mjs";
 import { DisplayMode } from "./DisplayMode.mjs";
-import { TrackController } from "./TrackController.mjs";
 import { SplineType, TrackCurve } from "./TrackCurve.mjs";
 import { TrackHighlighter } from "./TrackHighlighter.mjs";
 import { TrackRenderer } from "./TrackRenderer.mjs";
@@ -94,18 +93,10 @@ export class Track extends GameObject
         this.highlighter = new TrackHighlighter({ parent: this });
         
         this.renderer = new TrackRenderer({ parent: this });
-        this.controller = new TrackController({ parent: this });
     }
 
     update(dt)
     {
-        const controller = this.controller;
-            
-        if (controller)
-        {
-            controller.update(dt);
-        }
-
         if (this.points.length < 4) return;
 
         this.curves.chain();
@@ -113,15 +104,8 @@ export class Track extends GameObject
         this.highlighter.update(dt);
     }
 
-    connect()
+    static get WIDTH()
     {
-        this.controller.connect();
-    }
-
-    disconnect()
-    {
-        this.controller.disconnect();
+        return 20.0;
     }
 }
-
-Track.WIDTH = 20.0;
