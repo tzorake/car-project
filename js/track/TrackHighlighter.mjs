@@ -54,7 +54,8 @@ export class TrackHighlighter
                     {
                         if (timer.state === GameTimerState.STARTED)
                         {
-                            timer.stop();
+                            timer.reset();
+                            // add record on scoreboard
                         }
 
                         if (timer.state === GameTimerState.DELAULT)

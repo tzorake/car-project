@@ -110,7 +110,6 @@ export class GameScoreboard
                     {
                         const highlighter = track.highlighter;
                         highlighter.next = 0;
-                        console.info('asdassdad');
                     }
                 }
             },
