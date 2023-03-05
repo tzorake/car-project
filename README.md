@@ -15,13 +15,13 @@ chrome.exe http://127.0.0.1:8000/
 
 ## TODO:
 
-✅ Create MVP
-✅ Add camera
-✅ Add track via splines
-✅ Add menu
-✅ Add transition between menu and game
-✅ Add scoreboard (time, recods and start button)
-⬜ Track bounds collision detection
-⬜ Refactor UI components
-⬜ Link clients and room (create server site things)
+✅ Create MVP \
+✅ Add camera \
+✅ Add track via splines \
+✅ Add menu \
+✅ Add transition between menu and game \
+✅ Add scoreboard (time, recods and start button) \
+⬜ Track bounds collision detection \
+⬜ Refactor UI components \
+⬜ Link clients and room (create server site things) \
 ⬜ Add car models
