@@ -1,6 +1,6 @@
 let iota = 0;
-export const GameMenuComponentState = {};
-GameMenuComponentState.DEFAULT = iota++;
-GameMenuComponentState.EXPANDING = iota++;
-GameMenuComponentState.CLICKED = iota++;
-GameMenuComponentState.SELECTED = iota++;
+export const GameUIComponentState = {};
+GameUIComponentState.DEFAULT = iota++;
+GameUIComponentState.HOVERED = iota++;
+GameUIComponentState.CLICKED = iota++;
+GameUIComponentState.SELECTED = iota++;

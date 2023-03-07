@@ -4,9 +4,9 @@ import { GameUIComponentStyle } from "./base/GameUIComponentStyle.mjs";
 
 export class GameMenuBackground extends GameUIComponent
 {
-    constructor({ center = Vector2.ZERO, dimension  = Vector2.ZERO, style = GameUIComponentStyle.EMPTY, parent = null })
+    constructor({ center = Vector2.ZERO, dimension  = Vector2.ZERO, style = GameUIComponentStyle.EMPTY, callbacks = {}, parent = null })
     {
-        super({ center, dimension, style, parent });
+        super({ center, dimension, style, callbacks, parent });
     }
 
     update(dt)

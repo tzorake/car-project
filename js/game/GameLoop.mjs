@@ -49,13 +49,17 @@ export class GameLoop
     {
         this.state = new GameLoopState();
         this.menu = new GameMenu({ 
-            components: [],
             parent: this
         });
     }
 
     run()
     {
+        this.menu.connect();
+
+        const controller = GameUtils.CONTROLLER;
+        controller.connect();
+
         window.requestAnimationFrame(this.#step);
     }
 };

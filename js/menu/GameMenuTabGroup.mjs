@@ -9,11 +9,15 @@ export class GameMenuTabGroup extends GameUIComponentGroup
 
     connect()
     {
-
+        this.components.forEach(tab => {
+            tab.connect();
+        });
     }
 
     disconnect()
     {
-
+        this.components.forEach(tab => {
+            tab.disconnect();
+        });
     }
 };

@@ -5,6 +5,7 @@ export class GameUIComponentGroup
         this.parent = parent;
         
         this.components = components;
+
         this.components.forEach(component => {
             component.parent = this;
         });

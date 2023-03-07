@@ -100,6 +100,7 @@ export class GameUtils
     static TEXT(text, x, y)
     {
         CONTEXT.fillText(text, x, y);
+        CONTEXT.strokeText(text, x, y);
     }
 
     static BACKGROUND(color) 
@@ -164,6 +165,11 @@ export class GameUtils
     static FONT(font)
     {
         CONTEXT.font = font;
+    }
+
+    static TEXT_ALIGN(align)
+    {
+        CONTEXT.textAlign = align;
     }
 
     static TEXT_BASELINE(baseline)
