@@ -25,12 +25,6 @@ export class GameWorld
         return [this.track, this.player].concat(this.enemies)
     }
 
-    // append(object)
-    // {
-    //     object.world = this;
-    //     this.other.push(object);
-    // }
-
     update(dt)
     {
         const objects = this.objects;

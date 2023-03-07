@@ -1,3 +1,4 @@
+import { Vector2 } from "../math/Vector2.mjs";
 import { GlobalGameController } from "./GlobalGameController.mjs";
 
 const BODY = document.querySelector('body');
@@ -51,7 +52,10 @@ export class GameUtils
         return false;
     }
 
-
+    static get DIMENSION()
+    {
+        return new Vector2(CANVAS.clientWidth, CANVAS.clientHeight);
+    }
 
     static BEGIN_PATH()
     {

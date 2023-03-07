@@ -1,11 +1,4 @@
-import { GameUtils } from "../game/GameUtils.mjs";
-
-let iota = 0;
-export const GameMenuElementState = {};
-GameMenuElementState.DEFAULT = iota++;
-GameMenuElementState.EXPANDING = iota++;
-GameMenuElementState.CLICKED = iota++;
-GameMenuElementState.SELECTED = iota++;
+import { GameUtils } from "../../game/GameUtils.mjs";
 
 export const rect = function(x, y, w, h, styles)
 {

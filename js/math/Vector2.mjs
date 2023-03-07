@@ -2,33 +2,10 @@ import { MathFunction } from "./MathFunction.mjs";
 
 export class Vector2 
 {
-    #x;
-    #y;
-
     constructor(x = 0.0, y = 0.0) 
     {
-        this.#x = x;
-        this.#y = y;
-    }
-
-    get x() 
-    {
-        return this.#x;
-    }
-
-    set x(value)
-    {
-        this.#x = value;
-    }
-
-    get y() 
-    {
-        return this.#y;
-    }
-
-    set y(value)
-    {
-        this.#y = value;
+        this.x = x;
+        this.y = y;
     }
 
     rotated(theta, c) 
@@ -129,6 +106,11 @@ export class Vector2
             MathFunction.lerp(a.x, b.x, t),
             MathFunction.lerp(a.y, b.y, t) 
         )
+    }
+
+    static get ZERO()
+    {
+        return new Vector2(0.0, 0.0);
     }
 
     toString()
