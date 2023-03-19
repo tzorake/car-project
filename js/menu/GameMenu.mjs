@@ -6,7 +6,6 @@ import { within } from "./base/GameUIHelper.mjs";
 import { GameMenuBackground } from "./GameMenuBackground.mjs";
 import { GameMenuCard } from "./GameMenuCard.mjs";
 import { GameMenuTab } from "./GameMenuTab.mjs";
-import { GameMenuTransition, GameMenuTransitionState } from "./GameMenuTransition.mjs";
 
 export class GameMenu extends GameUIComponentGroup
 {
@@ -46,18 +45,13 @@ export class GameMenu extends GameUIComponentGroup
                     ) ? GameUIComponentState.HOVERED : GameUIComponentState.DEFAULT;
                 },
                 mouseDown: function(event) {
-                    // const group = this.parent;
-                    // const parent = group.parent;
-                    // const [transition, ...rest] = parent.components.filter(component => component instanceof GameMenuTransition);
-                    // const center = this.center;
-                    // const dimension = this.dimension;
-        
-                    // if (within(event.x, event.y, center.x - dimension.x / 2, center.y - dimension.y / 2, center.x + dimension.x / 2, center.y + dimension.y / 2))
-                    // {
-                    //     transition.setState(GameMenuTransitionState.FORWARD_STARTED, () => {
-                    //         transition.setState(GameMenuTransitionState.BACKWARD_STARTED);
-                    //     });
-                    // }
+                    const center = this.center;
+                    const dimension = this.dimension;
+                    
+                    if (within(event.x, event.y, center.x - dimension.x / 2, center.y - dimension.y / 2, center.x + dimension.x / 2, center.y + dimension.y / 2))
+                    {
+
+                    }
                 }
             },
             parent: this
@@ -73,13 +67,20 @@ export class GameMenu extends GameUIComponentGroup
                 mouseMove: function(event) {
                     const center = this.center;
                     const dimension = this.dimension;
+
                     this.state = within(
                         event.x, event.y, 
                         center.x - dimension.x / 2, center.y - dimension.y / 2, center.x + dimension.x / 2, center.y + dimension.y / 2
                     ) ? GameUIComponentState.HOVERED : GameUIComponentState.DEFAULT;
                 },
                 mouseDown: function(event) {
+                    const center = this.center;
+                    const dimension = this.dimension;
 
+                    if (within(event.x, event.y, center.x - dimension.x / 2, center.y - dimension.y / 2, center.x + dimension.x / 2, center.y + dimension.y / 2))
+                    {
+
+                    }
                 }
             },
             parent: this
@@ -145,16 +146,12 @@ export class GameMenu extends GameUIComponentGroup
             dimension: tabDimension,
             parent: this
         });
-        // const transition = new GameMenuTransition({
-        //     parent: this
-        // });
 
         this.components = [
             background,
             cards,
             topTabs,
             bottomTab,
-            // transition
         ];
     }
 };
