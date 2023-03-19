@@ -1,5 +1,4 @@
 import { GameUtils } from "../game/GameUtils.mjs";
-import { EventListenerType } from "../game/GlobalGameController.mjs";
 import { Color } from "../math/Color.mjs";
 import { Font } from "../math/Font.mjs";
 import { MathFunction } from "../math/MathFunction.mjs";
@@ -7,17 +6,29 @@ import { Vector2 } from "../math/Vector2.mjs";
 import { GameUIComponent } from "./base/GameUIComponent.mjs";
 import { GameUIComponentState } from "./base/GameUIComponentState.mjs";
 import { GameUIComponentStyle } from "./base/GameUIComponentStyle.mjs";
+import { GameUITextStyle } from "./base/GameUITextStyle.mjs";
 
 export class GameMenuCard extends GameUIComponent
 {
-    constructor({ text = '', center = Vector2.ZERO, dimension = Vector2.ZERO, style = GameUIComponentStyle.EMPTY, callbacks = {}, parent = null })
+    constructor({ text = '', center = Vector2.ZERO, dimension = Vector2.ZERO, callbacks = {}, parent = null })
     {
-        super({ center, dimension, style, callbacks, parent });
+        super({ center, dimension, callbacks, parent });
         
         this.text = text;
 
         this.expansion = 0.5;
         this.duration = 0.25;
+
+        this.style = new GameUIComponentStyle({
+            fillStyle: new Color(0, 0, 0, 0.75),
+            strokeStyle: new Color(0, 0, 0, 0.0),
+            lineWidth: 2,
+            textStyle: new GameUITextStyle({
+                fillStyle: new Color(255, 255, 255, 0.75),
+                strokeStyle: new Color(0, 0, 0, 0.0),
+                font: new Font(24, 'Roboto')
+            })
+        });
     }
 
     update(dt)
@@ -72,22 +83,6 @@ export class GameMenuCard extends GameUIComponent
             GameUtils.TEXT_BASELINE(textBaseline);
             GameUtils.TEXT(text, center.x, center.y);
             GameUtils.RESTORE();
-        }
-    }
-
-    connect()
-    {
-        if (this.mouseMove)
-        {
-            GameUtils.CONTROLLER.addCallback(EventListenerType.MOUSEMOVE, this.mouseMove);
-        }
-    }
-
-    disconnect()
-    {
-        if (this.mouseMove)
-        {
-            GameUtils.CONTROLLER.removeCallback(EventListenerType.MOUSEMOVE, this.mouseMove);
         }
     }
 };

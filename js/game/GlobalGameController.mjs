@@ -13,51 +13,79 @@ EventListenerMapping[EventListenerType.MOUSEDOWN] = 'mousedown';
 EventListenerMapping[EventListenerType.MOUSEMOVE] = 'mousemove';
 EventListenerMapping[EventListenerType.MOUSEUP]   = 'mouseup';
 
+export class Callback {
+    constructor(id, callback)
+    {
+        this.id = id;
+        this.callback = callback;
+    }
+};
+
 export class GlobalGameController
 {
     constructor()
     {
-        this.callbacks = [];
+        this.callbacks = {};
     }
 
-    addCallback(type, callback)
+    addCallback(type, id, callback)
     {
-        const typeExists = type in EventListenerMapping;
+        const isExists = type in EventListenerMapping;
 
-        if (!typeExists)
+        if (!isExists)
         {
             throw new Error('GlobalGameController.addCallback(type, callback) : There is no such type.');
         }
 
-        const isDefined = this.callbacks[type] instanceof Array;
+        const isEmpty = this.callbacks[type] === undefined;
 
-        if (!isDefined)
+        if (isEmpty)
         {
-            this.callbacks[type] = [];
+            this.callbacks[type] = {};
         }
 
-        this.callbacks[type].push(callback);
+        const storage = this.callbacks[type];
+
+        storage[id] = callback;
     }
 
-    removeCallback(type, callback)
+    removeCallback(type, id, callback)
     {
-        const typeExists = type in EventListenerMapping;
+        const callbacks = this.callbacks;
+        const isExists = type in EventListenerMapping;
 
-        if (!typeExists)
+        if (!isExists)
         {
             throw new Error('GlobalGameController.removeCallback(type, callback) : There is no such type.');
         }
 
-        this.callbacks[type] = this.callbacks[type].filter(item => item !== callback);
+        const isEmpty = !!Object.keys(callbacks[type]).length;
+
+        if (isEmpty)
+        {
+            callbacks[type] = {};
+        }
+
+        const storage = callbacks[type];
+
+        if (id in storage)
+        {
+            const { id, ...rest } = storage;
+            callbacks[type] = rest;
+        }
     }
 
     connect()
     {
-        Object.entries(EventListenerMapping).forEach(([type, listener]) => {
-            document.addEventListener(listener, event => {    
+        const tuples = Object.entries(EventListenerMapping);
+
+        tuples.forEach(([type, listener]) => {
+            document.addEventListener(listener, event => {
                 if (this.callbacks[type])
                 {
-                    this.callbacks[type].forEach(callback => {
+                    const tuples =  Object.entries(this.callbacks[type]);
+
+                    tuples.forEach(([_, callback]) => {
                         callback(event);
                     });
                 }
@@ -67,11 +95,15 @@ export class GlobalGameController
 
     disconnect()
     {
-        Object.entries(EventListenerMapping).forEach(([type, listener]) => {
-            document.removeEventListener(listener, event => {    
+        const tuples = Object.entries(EventListenerMapping);
+
+        tuples.forEach(([type, listener]) => {
+            document.removeEventListener(listener, event => {
                 if (this.callbacks[type])
                 {
-                    this.callbacks[type].forEach(callback => {
+                    const tuples =  Object.entries(this.callbacks[type]);
+                    
+                    tuples.forEach(([_, callback]) => {
                         callback(event);
                     });
                 }

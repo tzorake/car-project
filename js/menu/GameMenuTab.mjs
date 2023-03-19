@@ -1,19 +1,30 @@
 import { GameUtils } from "../game/GameUtils.mjs";
-import { EventListenerType } from "../game/GlobalGameController.mjs";
 import { Color } from "../math/Color.mjs";
+import { Font } from "../math/Font.mjs";
 import { Vector2 } from "../math/Vector2.mjs";
 import { GameUIComponent } from "./base/GameUIComponent.mjs";
 import { GameUIComponentState } from "./base/GameUIComponentState.mjs";
 import { GameUIComponentStyle } from "./base/GameUIComponentStyle.mjs";
+import { GameUITextStyle } from "./base/GameUITextStyle.mjs";
 
 export class GameMenuTab extends GameUIComponent
 {
-    constructor({ text = '', center = Vector2.ZERO, dimension  = Vector2.ZERO, style = GameUIComponentStyle.EMPTY, state = GameUIComponentState.DEFAULT, callbacks = {}, parent = null })
+    constructor({ text = '', center = Vector2.ZERO, dimension  = Vector2.ZERO, state = GameUIComponentState.DEFAULT, callbacks = {}, parent = null })
     {
-        super({ center, dimension, style, callbacks, parent });
+        super({ center, dimension, callbacks, parent });
 
         this.text = text;
         this.state = state;
+
+        this.style = new GameUIComponentStyle({
+            fillStyle: new Color(0, 0, 0, 0.75),
+            strokeStyle: new Color(0, 0, 0, 0.0),
+            textStyle: new GameUITextStyle({
+                fillStyle: new Color(255, 255, 255, 0.75),
+                strokeStyle: new Color(0, 0, 0, 0.0),
+                font: new Font(16, 'Roboto')
+            })
+        });
     }
 
     update(dt)
@@ -34,7 +45,6 @@ export class GameMenuTab extends GameUIComponent
 
         GameUtils.SAVE();
         GameUtils.FILL_STYLE(this.state === GameUIComponentState.DEFAULT ? fillStyle.rgba : customFill.rgba);
-        console.info(strokeStyle)
         GameUtils.STROKE_STYLE(strokeStyle.rgba);
         GameUtils.LINE_WIDTH(lineWidth);
         GameUtils.BEGIN_PATH();
@@ -55,22 +65,6 @@ export class GameMenuTab extends GameUIComponent
             GameUtils.TEXT_BASELINE(textBaseline);
             GameUtils.TEXT(text, center.x, center.y);
             GameUtils.RESTORE();
-        }
-    }
-
-    connect()
-    {
-        if (this.mouseDown)
-        {
-            GameUtils.CONTROLLER.addCallback(EventListenerType.MOUSEDOWN, this.mouseDown);
-        }
-    }
-
-    disconnect()
-    {
-        if (this.mouseDown)
-        {
-            GameUtils.CONTROLLER.removeCallback(EventListenerType.MOUSEDOWN, this.mouseDown);
         }
     }
 };

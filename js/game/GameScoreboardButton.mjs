@@ -21,7 +21,6 @@ export class GameScoreboardButton
             const { rectStyle, labelStyle } = styles;
             this.rectStyle = rectStyle;
             this.labelStyle = labelStyle;
-            console.info(rectStyle, labelStyle)
         }
 
         if (callbacks)

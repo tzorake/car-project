@@ -1,12 +1,18 @@
 export class GameUIComponentGroup
 {
-    constructor({ components, parent })
+    constructor({ components = [], callbacks = {}, parent = null })
     {
         this.parent = parent;
         
         this.components = components;
 
         this.components.forEach(component => {
+            const tuples = Object.entries(callbacks);
+
+            tuples.forEach(([name, func]) => {
+                component.callbacks[name] = func;
+            });
+
             component.parent = this;
         });
     }
@@ -27,11 +33,15 @@ export class GameUIComponentGroup
 
     connect()
     {
-        throw new Error('GameUIComponentGroup.connect() is not implemented yet.');
+        this.components.forEach(component => {
+            component.connect();
+        });
     }
 
     disconnect()
     {
-        throw new Error('GameUIComponentGroup.disconnect() is not implemented yet.');
+        this.components.forEach(component => {
+            component.disconnect();
+        });
     }
 };
