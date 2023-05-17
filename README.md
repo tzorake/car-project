@@ -1,5 +1,7 @@
 # car-project
 
+Work in progress!
+
 ## INFORMATION
 
 It is a simple game about a car. You can launch a run with a start button. Drive faster and make best record on the track.
