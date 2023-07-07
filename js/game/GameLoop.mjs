@@ -1,86 +1,65 @@
-import { DebugGameObject } from "../debug/DebugGameObject.mjs";
-import { GameMenu } from "../menu/GameMenu.mjs";
-import { GameMenuTransition } from "../menu/GameMenuTransition.mjs";
-import { Track } from "../track/Track.mjs";
-import { GameUtils } from "./GameUtils.mjs";
+import { HtmlElements } from "../utils/HtmlElements.mjs";
 import { GameWorld } from "./GameWorld.mjs";
-import { Player } from "./Player.mjs";
+import { Canvas } from "./hierarchy/Canvas.mjs";
+import { Element } from "./hierarchy/Element.mjs";
 
-export class GameLoop
-{
-    #step = function() 
-    {
-        const step = function(timestamp) 
-        {
-            if (this.startTimeStamp === null) 
-            {
-                this.startTimeStamp = timestamp;
-            }
+const canvas = HtmlElements.CANVAS;
 
-            if (this.previousTimeStamp != null && timestamp != null) 
-            {
-                const dt = (timestamp - this.previousTimeStamp) / GameUtils.SECOND_TO_MILLISECONDS;
-
-                if (this.menuConnected)
-                {
-                    this.menu.update(dt);
-                    this.menu.render(dt);
-                }
-
-                if (this.worldConnected)
-                {
-                    this.world.update(dt);
-                    this.world.render(dt);
-                }
-
-                this.transition.update(dt);
-                this.transition.render(dt);
-            }
-
-            this.previousTimeStamp = timestamp;
-
-            if (!this.done) 
-            {
-                window.requestAnimationFrame(step);
-            }
-        }.bind(this);
-
-        window.requestAnimationFrame(step);
-    }.bind(this);
-
-    constructor() 
-    {
-        this.startTimeStamp = null;
-        this.previousTimeStamp = null;
-        this.done = false;
-
-        const canvas = GameUtils.CANVAS;
-        const scale = GameUtils.SCALE;
-
-        this.menu = new GameMenu({ parent: this });
-        this.world = new GameWorld({ 
-            objects: {
-                player: new Player(),
-                enemies: [
-                    new DebugGameObject({ x: 10.0, y: 10.0, height: 5.0, width: 5.0 })
-                ],
-                track: new Track({ x: 0.0, y: 0.0, width: canvas.width / scale, height: canvas.height / scale }), 
-            }, 
-            parent: this 
+export class GameLoop {
+    constructor(args) {
+        this.canvas = new Canvas({
+            x: 0, 
+            y: 0, 
+            width: canvas.width, 
+            height: canvas.height,
         });
-        this.transition = new GameMenuTransition({ parent: this });
+        this.world = new GameWorld();
 
-        const controller = GameUtils.CONTROLLER;
-        controller.connect();
-
-        this.menu.connect();
-        this.menuConnected = true;
-
-        this.worldConnected = false;
+        const now = window.performance.now();
+        this.deltaTime = 0;
+        this.targetFrameRate = 60;
+        this.frameRate = 0;
+        this.lastTargetFrameTime = now;
+        this.lastFrameTime = now;
+        this.loop = true;
     }
 
-    run()
-    {
-        window.requestAnimationFrame(this.#step);
+    repaint() {
+        // console.info('======================================================');
+        // console.info('deltaTime: ',           this.property('deltaTime'));
+        // console.info('targetFrameRate: ',     this.property('targetFrameRate'));
+        // console.info('frameRate: ',           this.property('frameRate'));
+        // console.info('lastTargetFrameTime: ', this.property('lastTargetFrameTime'));
+        // console.info('lastFrameTime: ',       this.property('lastFrameTime'));
+        // console.info('loop: ',                this.property('loop'));
+
+        this.canvas.update();
+        this.canvas.paint();
+        this.world.update();
+        this.world.paint();
+    }
+
+    paint() {
+        const now = window.performance.now();
+        const time_since_last = now - this.lastTargetFrameTime;
+        const target_time_between_frames = 1000 / this.targetFrameRate;
+
+        const epsilon = 5;
+        if (!this.loop || time_since_last >= target_time_between_frames - epsilon) {
+            const deltaTime = now - this.lastFrameTime; // lastRealFrameTime -> lastFrameTime
+            this.deltaTime = deltaTime;
+            this.frameRate = 1000.0 / deltaTime;
+            this.repaint();
+            this.lastTargetFrameTime = Math.max(this.lastTargetFrameTime + target_time_between_frames, now);
+            this.lastFrameTime = now;
+        }
+
+        if (this.loop) {
+            this.requestAnimationId = window.requestAnimationFrame(this.paint.bind(this));
+        }
+    };
+
+    start() {
+        this.requestAnimationId = window.requestAnimationFrame(this.paint.bind(this));
     }
 };

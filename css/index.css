@@ -1,51 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-
-body 
-{
+body {
     display: flex;
 
     width: 100vw;
     height: 100vh;
-
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    overflow: hidden;
-}
-
-.container
-{
-    display: flex;
-}
-
-.debug-widget
-{
-    display: flex;
-
-    flex-direction: column; 
-
-    border: 1px solid black;
-    box-sizing: border-box;
-
-    user-select: none;
-    background-color: rgba(255, 255, 255, 0.25);
-}
-
-.debug-widget .header
-{
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
     
-    height: 12%;
-    border-bottom: 1px solid black;
-    box-sizing: border-box;
+    background-color: #030405;
 }
 
-.debug-widget .content
-{
-    height: 88%;
-    tab-size: 2;
+.canvas-wrapper {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.canvas {
+    display: flex;
 }
